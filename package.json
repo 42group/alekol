@@ -15,6 +15,8 @@
     "@nrwl/nx-cloud": "latest",
     "@nrwl/react": "15.8.6",
     "@nrwl/workspace": "15.8.6",
+    "@swc/core": "^1.2.173",
+    "@swc/jest": "0.2.20",
     "@testing-library/react": "14.0.0",
     "@types/jest": "^29.4.0",
     "@types/node": "18.14.2",
