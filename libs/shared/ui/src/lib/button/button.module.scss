@@ -1,0 +1,54 @@
+@import "libs/shared/ui/src/lib/styles/variables";
+
+.container {
+  box-sizing: border-box;
+  margin: 0;
+  border: none;
+  border-radius: 8px;
+  padding: 0px 16px;
+  width: auto;
+  overflow: visible;
+
+  display: block;
+
+  font: inherit;
+  text-decoration: none;
+
+  line-height: normal;
+
+  -webkit-font-smoothing: inherit;
+  -moz-osx-font-smoothing: inherit;
+
+  appearance: none;
+  -webkit-appearance: none;
+
+  cursor: pointer;
+
+  &.small {
+    height: 32px;;
+  }
+
+  &.large {
+    height: 48px;;
+  }
+
+  &.primary {
+    background: $dark-primary-purple;
+    color: $dark-neutral-white;
+  }
+
+  &.secondary {
+    background: $dark-primary-blue;
+    color: $dark-neutral-white;
+  }
+
+  &.discord {
+    background: $dark-brand-discord;
+    color: $dark-neutral-white;
+  }
+
+  &.ft {
+    background: $dark-brand-42;
+    color: $dark-neutral-white;
+  }
+}
