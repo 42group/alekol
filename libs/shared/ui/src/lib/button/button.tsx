@@ -7,7 +7,7 @@ export interface ButtonProps {
   width?: string;
 }
 
-function Button({
+export function Button({
   children = 'Button',
   color = 'primary',
   size = 'large',
@@ -22,5 +22,3 @@ function Button({
     </button>
   );
 }
-
-export default Button;

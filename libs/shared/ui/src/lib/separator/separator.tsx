@@ -4,8 +4,6 @@ export interface SeparatorProps {
   width?: string;
 }
 
-function Separator({ width = '100%' }: SeparatorProps) {
+export function Separator({ width = '100%' }: SeparatorProps) {
   return <hr className={styles.separator} style={{ width }} />;
 }
-
-export default Separator;

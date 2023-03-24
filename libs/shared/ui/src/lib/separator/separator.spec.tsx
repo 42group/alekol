@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import Separator, { SeparatorProps } from './separator';
+import { Separator, SeparatorProps } from './separator';
 
 describe('Separator', () => {
   it.each<{ props: SeparatorProps }>([

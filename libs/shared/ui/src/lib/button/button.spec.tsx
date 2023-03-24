@@ -1,6 +1,6 @@
 import { render, screen } from '@testing-library/react';
 
-import Button, { ButtonProps } from './button';
+import { Button, ButtonProps } from './button';
 
 describe('Button', () => {
   it.each<{ props: ButtonProps; text?: string }>([
