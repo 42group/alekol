@@ -1,0 +1,26 @@
+version: "3.8"
+services:
+  web:
+    build:
+      context: .
+      dockerfile: ./apps/web/Dockerfile
+    container_name: web
+    networks:
+      - proxy
+    restart: unless-stopped
+
+  proxy:
+    image: nginx:stable-alpine
+    container_name: proxy
+    depends_on:
+      - web
+    ports:
+      - 8080:80
+    volumes:
+      - ./templates:/etc/nginx/templates
+    networks:
+      - proxy
+    restart: unless-stopped
+
+networks:
+  proxy:
