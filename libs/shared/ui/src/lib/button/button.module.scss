@@ -1,4 +1,4 @@
-@import "libs/shared/ui/src/lib/styles/variables";
+@import 'libs/shared/ui/src/lib/styles/variables';
 
 .container {
   box-sizing: border-box;
@@ -27,11 +27,11 @@
   cursor: pointer;
 
   &.small {
-    height: 32px;;
+    height: 32px;
   }
 
   &.large {
-    height: 48px;;
+    height: 48px;
   }
 
   &.primary {
