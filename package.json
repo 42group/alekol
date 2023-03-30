@@ -6,6 +6,7 @@
   "private": true,
   "devDependencies": {
     "@babel/preset-react": "^7.14.5",
+    "@faker-js/faker": "^7.6.0",
     "@nrwl/cypress": "15.8.6",
     "@nrwl/esbuild": "15.8.9",
     "@nrwl/eslint-plugin-nx": "15.8.6",

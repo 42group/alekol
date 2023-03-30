@@ -15,7 +15,8 @@
     "skipDefaultLibCheck": true,
     "baseUrl": ".",
     "paths": {
-      "@alekol/shared/ui": ["libs/shared/ui/src/index.ts"]
+      "@alekol/shared/ui": ["libs/shared/ui/src/index.ts"],
+      "@alekol/shared/utils": ["libs/shared/utils/src/index.ts"]
     }
   },
   "exclude": ["node_modules", "tmp"]
