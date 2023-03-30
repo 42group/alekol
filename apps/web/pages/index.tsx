@@ -1,5 +1,6 @@
-import { Button, Separator } from '@alekol/shared/ui';
+import { Button, DiscordOauth2Button, Separator } from '@alekol/shared/ui';
 import styles from '../styles/page-index.module.scss';
+import config from '../lib/config';
 
 export function Index() {
   return (
@@ -11,9 +12,10 @@ export function Index() {
         <Separator />
       </div>
       <div className={styles.buttons}>
-        <Button color="discord" width="100%">
-          Login with Discord
-        </Button>
+        <DiscordOauth2Button
+          clientId={config.discord.clientId}
+          redirectUri={config.discord.redirectUri}
+        />
         <Button color="ft" width="100%">
           Login with 42
         </Button>
