@@ -1,8 +1,10 @@
+import Link from 'next/link';
 import styles from './button.module.scss';
 
 export interface ButtonProps {
   children?: string;
   color?: 'primary' | 'secondary' | 'discord' | 'ft';
+  href?: string;
   size?: 'small' | 'large';
   width?: string;
 }
@@ -10,15 +12,20 @@ export interface ButtonProps {
 export function Button({
   children = 'Button',
   color = 'primary',
+  href,
   size = 'large',
   width = 'auto',
 }: ButtonProps) {
-  return (
-    <button
-      className={`${styles.container} ${styles[color]} ${styles[size]}`}
-      style={{ width }}
-    >
-      {children}
-    </button>
-  );
+  const globalProps = {
+    className: `${styles.container} ${styles[color]} ${styles[size]}`,
+    style: { width },
+  };
+  if (href) {
+    return (
+      <Link href={href} {...globalProps}>
+        {children}
+      </Link>
+    );
+  }
+  return <button {...globalProps}>{children}</button>;
 }
