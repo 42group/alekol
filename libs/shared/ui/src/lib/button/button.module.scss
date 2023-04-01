@@ -37,25 +37,64 @@
   &.primary {
     background: $dark-primary-purple;
     color: $dark-neutral-white;
+
+    &.disabled {
+      border: 2px solid $dark-primary-purple-50;
+
+      background: $dark-primary-purple-20;
+      color: $dark-primary-purple-50;
+    }
   }
 
   &.secondary {
     background: $dark-primary-blue;
     color: $dark-neutral-white;
+
+    &.disabled {
+      border: 2px solid $dark-primary-blue-50;
+
+      background: $dark-primary-blue-20;
+      color: $dark-primary-blue-50;
+    }
   }
 
   &.danger {
     background: $dark-system-danger;
     color: $dark-neutral-white;
+
+    &.disabled {
+      border: 2px solid $dark-system-danger-50;
+
+      background: $dark-system-danger-20;
+      color: $dark-system-danger-50;
+    }
   }
 
   &.discord {
     background: $dark-brand-discord;
     color: $dark-neutral-white;
+
+    &.disabled {
+      border: 2px solid $dark-brand-discord-50;
+
+      background: $dark-brand-discord-20;
+      color: $dark-brand-discord-50;
+    }
   }
 
   &.ft {
     background: $dark-brand-42;
     color: $dark-neutral-white;
+
+    &.disabled {
+      border: 2px solid $dark-brand-42-50;
+
+      background: $dark-brand-42-20;
+      color: $dark-brand-42-50;
+    }
   }
+}
+
+.container.disabled {
+  cursor: not-allowed;
 }
