@@ -5,12 +5,14 @@ import LoadingParagraph from '../loading-paragraph/loading-paragraph';
 import styles from './account-linking.module.scss';
 
 export interface AccountLinkingProps {
+  disabled?: boolean;
   loading?: boolean;
   name: string;
   user?: AccountLinkingData;
 }
 
 export function AccountLinking({
+  disabled = false,
   loading = false,
   name,
   user,
@@ -31,13 +33,17 @@ export function AccountLinking({
       <>
         <LoadingAvatar src={user.avatarUrl} />
         <LoadingParagraph>{user.name}</LoadingParagraph>
-        <Button width="100%" color="danger">
+        <Button width="100%" color="danger" disabled={disabled}>
           Unlink
         </Button>
       </>
     );
   } else {
-    children = <Button width="100%">Link</Button>;
+    children = (
+      <Button width="100%" disabled={disabled}>
+        Link
+      </Button>
+    );
   }
   return (
     <div className={styles.container}>
