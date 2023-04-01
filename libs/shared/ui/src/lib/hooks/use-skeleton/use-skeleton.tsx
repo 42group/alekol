@@ -7,7 +7,7 @@ export function useSkeleton(
 ): React.ReactElement {
   if (component) return component;
   return (
-    <div className={className}>
+    <div className={className} data-testid="skeleton-wrapper">
       <Skeleton />
     </div>
   );
