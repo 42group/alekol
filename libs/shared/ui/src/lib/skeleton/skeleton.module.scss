@@ -1,0 +1,28 @@
+@import 'libs/shared/ui/src/lib/styles/variables';
+
+.container {
+  position: relative;
+
+  width: 100%;
+  height: 100%;
+
+  background-color: $dark-neutral-grey;
+
+  &::after {
+    position: absolute;
+    top: 0;
+    right: 0;
+    bottom: 0;
+    left: 0;
+    transform: translateX(-100%);
+    background: $dark-skeleton-gradient;
+    animation: shimmer 2s infinite ease-in-out;
+    content: '';
+  }
+
+  @keyframes shimmer {
+    100% {
+      transform: translateX(100%);
+    }
+  }
+}
