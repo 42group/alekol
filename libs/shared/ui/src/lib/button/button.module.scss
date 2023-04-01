@@ -44,6 +44,11 @@
     color: $dark-neutral-white;
   }
 
+  &.danger {
+    background: $dark-system-danger;
+    color: $dark-neutral-white;
+  }
+
   &.discord {
     background: $dark-brand-discord;
     color: $dark-neutral-white;

@@ -3,7 +3,7 @@ import styles from './button.module.scss';
 
 export interface ButtonProps {
   children?: string;
-  color?: 'primary' | 'secondary' | 'discord' | 'ft';
+  color?: 'primary' | 'secondary' | 'danger' | 'discord' | 'ft';
   href?: string;
   size?: 'small' | 'large';
   width?: string;
