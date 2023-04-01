@@ -1,10 +1,24 @@
-import { render } from '@testing-library/react';
+import { faker } from '@faker-js/faker';
+import { render, screen } from '@testing-library/react';
 
 import LoadingParagraph from './loading-paragraph';
 
+const paragraph = faker.hacker.phrase();
+
 describe('LoadingParagraph', () => {
-  it('should render successfully', () => {
-    const { baseElement } = render(<LoadingParagraph />);
-    expect(baseElement).toBeTruthy();
+  describe('when loading', () => {
+    it('should render successfully', () => {
+      render(<LoadingParagraph loading={true} />);
+      const avatarElement = screen.getByTestId('skeleton-wrapper');
+      expect(avatarElement).toBeInTheDocument();
+    });
+  });
+
+  describe('when not loading', () => {
+    it('should render successfully', () => {
+      render(<LoadingParagraph>{paragraph}</LoadingParagraph>);
+      const avatarElement = screen.getByText(paragraph);
+      expect(avatarElement).toBeInTheDocument();
+    });
   });
 });
