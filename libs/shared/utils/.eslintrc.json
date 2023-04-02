@@ -3,6 +3,15 @@
   "ignorePatterns": ["!**/*"],
   "overrides": [
     {
+      "files": ["src/lib/hooks/*.ts", "src/lib/hooks/*.tsx", "src/lib/hooks/*.js", "src/lib/hooks/*.jsx"],
+      "extends": [
+        "plugin:@nrwl/nx/react-typescript",
+        "next",
+        "next/core-web-vitals"
+      ],
+      "rules": {}
+    },
+    {
       "files": ["*.ts", "*.tsx", "*.js", "*.jsx"],
       "rules": {}
     },
