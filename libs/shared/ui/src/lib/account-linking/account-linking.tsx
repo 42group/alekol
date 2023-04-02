@@ -3,9 +3,11 @@ import { AccountLinkingData } from '@alekol/shared/interfaces';
 import LoadingAvatar from '../loading-avatar/loading-avatar';
 import LoadingParagraph from '../loading-paragraph/loading-paragraph';
 import styles from './account-linking.module.scss';
+import { ReactElement } from 'react';
 
 export interface AccountLinkingProps {
   disabled?: boolean;
+  linkingComponent: ReactElement;
   loading?: boolean;
   name: string;
   user?: AccountLinkingData;
@@ -13,6 +15,7 @@ export interface AccountLinkingProps {
 
 export function AccountLinking({
   disabled = false,
+  linkingComponent,
   loading = false,
   name,
   user,
@@ -39,11 +42,7 @@ export function AccountLinking({
       </>
     );
   } else {
-    children = (
-      <Button width="100%" disabled={disabled}>
-        Link
-      </Button>
-    );
+    children = linkingComponent;
   }
   return (
     <div className={styles.container}>
