@@ -10,6 +10,13 @@ const config = {
     clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
     redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth2/discord/callback`,
   },
+  ironSession: {
+    cookieName: 'alekol_session',
+    password: process.env.SESSION_PASSWORD,
+    cookieOptions: {
+      secure: process.env.NODE_ENV === 'production',
+    },
+  },
 };
 
 export default config;
