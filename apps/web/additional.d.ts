@@ -1,9 +1,8 @@
 /* eslint-disable-next-line */
 import * as IronSession from 'iron-session';
-import { User } from '@alekol/shared/interfaces';
+import { SessionData } from '@alekol/shared/interfaces';
 
 declare module 'iron-session' {
-  interface IronSessionData {
-    user?: User;
-  }
+  /* eslint-disable-next-line */
+  interface IronSessionData extends SessionData {}
 }
