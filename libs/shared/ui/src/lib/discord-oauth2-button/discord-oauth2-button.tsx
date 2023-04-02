@@ -2,11 +2,13 @@ import { Button } from '../button/button';
 import { generateDiscordOauth2Url } from '@alekol/shared/utils';
 
 export interface DiscordOauth2ButtonProps {
+  children?: string;
   clientId: string;
   redirectUri: string;
 }
 
 export function DiscordOauth2Button({
+  children = 'Login with Discord',
   clientId,
   redirectUri,
 }: DiscordOauth2ButtonProps) {
@@ -16,7 +18,7 @@ export function DiscordOauth2Button({
       color="discord"
       width="100%"
     >
-      Login with Discord
+      {children}
     </Button>
   );
 }
