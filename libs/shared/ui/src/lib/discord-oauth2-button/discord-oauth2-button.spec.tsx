@@ -15,7 +15,15 @@ type DiscordOauth2ButtonOptionalProps = {
 
 describe.each<{ props: DiscordOauth2ButtonOptionalProps; text?: string }>([
   { props: {} },
+  { props: { color: 'primary' } },
+  { props: { color: 'secondary' } },
+  { props: { color: 'discord' } },
+  { props: { color: 'ft' } },
   { props: {}, text: 'Click me' },
+  { props: { color: 'primary' }, text: 'Click me' },
+  { props: { color: 'secondary' }, text: 'Click me' },
+  { props: { color: 'discord' }, text: 'Click me' },
+  { props: { color: 'ft' }, text: 'Click me' },
 ])("DiscordOauth2Button (props: $props, text: '$text')", ({ props, text }) => {
   it('should render successfully', () => {
     render(
@@ -29,6 +37,7 @@ describe.each<{ props: DiscordOauth2ButtonOptionalProps; text?: string }>([
     );
     const buttonElement = screen.getByRole('link');
     expect(buttonElement).toBeInTheDocument();
+    expect(buttonElement).toHaveClass(props.color || 'discord');
     expect(buttonElement).toHaveProperty(
       'href',
       generateDiscordOauth2Url(clientId, redirectUri)
