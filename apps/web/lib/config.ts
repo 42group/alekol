@@ -10,6 +10,10 @@ const config = {
     clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
     redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth2/discord/callback`,
   },
+  ft: {
+    clientId: process.env.NEXT_PUBLIC_FT_CLIENT_ID,
+    redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth2/42/callback`,
+  },
   ironSession: {
     cookieName: 'alekol_session',
     password: process.env.SESSION_PASSWORD,
