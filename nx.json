@@ -40,5 +40,14 @@
         "linter": "eslint"
       }
     }
+  },
+  "namedInputs": {
+    "sharedGlobals": [
+      "{workspaceRoot}/.env",
+      "{workspaceRoot}/.env.*"
+    ],
+    "default": [
+      "sharedGlobals"
+    ]
   }
 }
