@@ -12,6 +12,9 @@ const nextConfig = {
     // See: https://github.com/gregberge/svgr
     svgr: false,
   },
+  env: {
+    SESSION_PASSWORD: process.env.SESSION_PASSWORD,
+  },
   images: {
     remotePatterns: [
       {
