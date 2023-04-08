@@ -18,7 +18,9 @@ export function DiscordOauth2Button({
 }: DiscordOauth2ButtonProps) {
   return (
     <Button
-      href={generateDiscordOauth2Url(clientId, redirectUri)}
+      href={
+        disabled ? undefined : generateDiscordOauth2Url(clientId, redirectUri)
+      }
       color={color}
       width="100%"
       disabled={disabled}

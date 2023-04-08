@@ -19,9 +19,8 @@ export function Button({
   width = 'auto',
 }: ButtonProps) {
   const globalProps = {
-    className: `${styles.container} ${styles[color]} ${styles[size]} ${
-      disabled ? styles.disabled : ''
-    }`,
+    className: `${styles.container} ${styles[color]} ${styles[size]}`,
+    disabled,
     style: { width },
   };
   if (href) {
