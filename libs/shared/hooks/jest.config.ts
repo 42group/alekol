@@ -10,5 +10,5 @@ export default {
   },
   moduleFileExtensions: ['ts', 'tsx', 'js', 'jsx'],
   coverageDirectory: '../../../coverage/libs/shared/hooks',
-  setupFilesAfterEnv: ["./jest.setup.ts"],
+  setupFilesAfterEnv: ['./jest.setup.ts'],
 };
