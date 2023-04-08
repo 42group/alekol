@@ -42,12 +42,7 @@
     }
   },
   "namedInputs": {
-    "sharedGlobals": [
-      "{workspaceRoot}/.env",
-      "{workspaceRoot}/.env.*"
-    ],
-    "default": [
-      "sharedGlobals"
-    ]
+    "sharedGlobals": ["{workspaceRoot}/.env", "{workspaceRoot}/.env.*"],
+    "default": ["sharedGlobals"]
   }
 }
