@@ -1,14 +1,6 @@
 import { ParsedUrlQuery } from 'querystring';
 import { GetServerSidePropsContext, PreviewData } from 'next';
-import { SessionData, User } from '@alekol/shared/interfaces';
-
-/* eslint-disable-next-line */
-import * as IronSession from 'iron-session';
-
-declare module 'iron-session' {
-  /* eslint-disable-next-line */
-  interface IronSessionData extends SessionData {}
-}
+import { User } from '@alekol/shared/interfaces';
 
 export function ironSessionWrapper(
   tests: ((

@@ -13,5 +13,5 @@
     "src/**/*.spec.tsx",
     "src/**/*.test.tsx"
   ],
-  "include": ["src/**/*.ts", "src/**/*.tsx"]
+  "include": ["src/**/*.ts", "src/**/*.tsx", "types.d.ts"]
 }

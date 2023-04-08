@@ -6,15 +6,9 @@
 import { Logger, ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { ironSession } from 'iron-session/express';
-import { SessionData } from '@alekol/shared/interfaces';
 
 import { AppModule } from './app/app.module';
 import { ConfigService } from '@nestjs/config';
-
-declare module 'iron-session' {
-  /* eslint-disable-next-line */
-  interface IronSessionData extends SessionData {}
-}
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
