@@ -1,10 +1,8 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { User } from '@alekol/shared/interfaces';
 import { AuthForm } from '@alekol/shared/ui';
-import {
-  ironSessionWrapper,
-  useDiscordCodeExchange,
-} from '@alekol/shared/utils';
+import { ironSessionWrapper } from '@alekol/shared/utils';
+import { useDiscordCodeExchange } from '@alekol/shared/hooks';
 import config from '../../../../../lib/config';
 
 export const getServerSideProps = withIronSessionSsr(
