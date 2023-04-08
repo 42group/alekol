@@ -2,6 +2,7 @@ import {
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
 } from '@alekol/shared/interfaces';
+import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
 import { HttpService } from '@nestjs/axios';
@@ -152,7 +153,7 @@ describe('AuthService', () => {
       expect(session.user.accountLinking.discord).toStrictEqual({
         id: discordUser.id,
         name: `${discordUser.username}#${discordUser.discriminator}`,
-        avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}`,
+        avatarUrl: generateDiscordUserAvatarUrl(discordUser),
       });
     });
     it('should not overwrite other fields of the session', async () => {
@@ -170,7 +171,7 @@ describe('AuthService', () => {
       expect(session.user.accountLinking.discord).toStrictEqual({
         id: discordUser.id,
         name: `${discordUser.username}#${discordUser.discriminator}`,
-        avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}`,
+        avatarUrl: generateDiscordUserAvatarUrl(discordUser),
       });
       expect(session.user.accountLinking.ft).toStrictEqual(ftUser);
     });

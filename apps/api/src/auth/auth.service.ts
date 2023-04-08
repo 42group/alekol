@@ -4,6 +4,7 @@ import {
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
 } from '@alekol/shared/interfaces';
+import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 import { IronSession } from 'iron-session';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
@@ -77,7 +78,7 @@ export class AuthService {
         discord: {
           id: discordUser.id,
           name: `${discordUser.username}#${discordUser.discriminator}`,
-          avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}`,
+          avatarUrl: generateDiscordUserAvatarUrl(discordUser),
         },
       },
     };
