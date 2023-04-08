@@ -48,7 +48,7 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
   ];
 
   return (
-    <div className={styles.container}>
+    <div data-testid="auth-form" className={styles.container}>
       {services.map((service) => {
         const loading = service.name === loadingService;
         const disabled = !!loadingService && service.name !== loadingService;
