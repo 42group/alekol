@@ -1,5 +1,11 @@
 # Changelog
 
+## [0.2.2] - 2023-04-08
+
+### Fixes
+
+- fix bug from 0.2.1: now handles users without an avatar set
+
 ## [0.2.1] - 2023-04-07
 
 ### Features
