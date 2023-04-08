@@ -13,6 +13,9 @@ const nextConfig = {
     svgr: false,
   },
   env: {
+    NEXT_PUBLIC_BASE_URL: process.env.FRONTEND_BASE_URL,
+    NEXT_PUBLIC_DISCORD_CLIENT_ID: process.env.DISCORD_API_CLIENT_ID,
+    NEXT_PUBLIC_FT_CLIENT_ID: process.env.FT_API_CLIENT_ID,
     SESSION_PASSWORD: process.env.SESSION_PASSWORD,
   },
   images: {

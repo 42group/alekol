@@ -7,6 +7,11 @@ services:
     container_name: api
     networks:
       - proxy
+    environment:
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      DISCORD_API_CLIENT_ID: ${DISCORD_API_CLIENT_ID}
+      DISCORD_API_CLIENT_SECRET: ${DISCORD_API_CLIENT_SECRET}
+      SESSION_PASSWORD: ${SESSION_PASSWORD}
     restart: unless-stopped
 
   web:
@@ -18,6 +23,11 @@ services:
       - api
     networks:
       - proxy
+    environment:
+      FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
+      DISCORD_API_CLIENT_ID: ${DISCORD_API_CLIENT_ID}
+      FT_API_CLIENT_ID: ${FT_API_CLIENT_ID}
+      SESSION_PASSWORD: ${SESSION_PASSWORD}
     restart: unless-stopped
 
   proxy:
