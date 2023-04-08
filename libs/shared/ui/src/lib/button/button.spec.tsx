@@ -25,6 +25,36 @@ describe.each<{ props: ButtonProps; text?: string }>([
   { props: { color: 'ft', size: 'small', width: '300px' } },
   { props: { color: 'ft', size: 'large', width: '300px' } },
   {
+    props: { color: 'primary', size: 'small', width: '300px', disabled: true },
+  },
+  {
+    props: { color: 'primary', size: 'large', width: '300px', disabled: true },
+  },
+  {
+    props: {
+      color: 'secondary',
+      size: 'small',
+      width: '300px',
+      disabled: true,
+    },
+  },
+  {
+    props: {
+      color: 'secondary',
+      size: 'large',
+      width: '300px',
+      disabled: true,
+    },
+  },
+  {
+    props: { color: 'discord', size: 'small', width: '300px', disabled: true },
+  },
+  {
+    props: { color: 'discord', size: 'large', width: '300px', disabled: true },
+  },
+  { props: { color: 'ft', size: 'small', width: '300px', disabled: true } },
+  { props: { color: 'ft', size: 'large', width: '300px', disabled: true } },
+  {
     props: { color: 'primary', size: 'small', width: '300px' },
     text: 'Click me',
   },
@@ -58,6 +88,7 @@ describe.each<{ props: ButtonProps; text?: string }>([
     expect(buttonElement).toHaveClass('container');
     expect(buttonElement).toHaveClass(props.size || 'large');
     expect(buttonElement).toHaveClass(props.color || 'primary');
+    expect(buttonElement).toHaveProperty('disabled', props.disabled || false);
     expect(buttonElement).toHaveStyle({ width: props.width || 'auto' });
     expect(buttonElement.textContent).toEqual(text || 'Button');
   });
