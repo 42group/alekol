@@ -2,6 +2,7 @@
 export default {
   displayName: 'shared-hooks',
   preset: '../../../jest.preset.js',
+  environment: 'jsdom',
   transform: {
     '^.+\\.[tj]sx?$': [
       '@swc/jest',
