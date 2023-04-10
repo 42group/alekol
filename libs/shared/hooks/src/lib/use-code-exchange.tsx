@@ -3,6 +3,16 @@ import { useEffect } from 'react';
 
 export const useCodeExchange = (service: string) => {
   useEffect(() => {
+    const storageState = sessionStorage.getItem('state');
+    if (
+      !router.query.state ||
+      !storageState ||
+      router.query.state !== storageState
+    ) {
+      router.replace('/auth');
+      return;
+    }
+
     fetch(`/api/auth/oauth2/${service}/code`, {
       method: 'POST',
       body: JSON.stringify({
