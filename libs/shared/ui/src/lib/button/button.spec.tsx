@@ -2,6 +2,8 @@ import { render, screen } from '@testing-library/react';
 
 import { Button, ButtonProps } from './button';
 
+const mockOnClick = jest.fn();
+
 describe.each<{ props: ButtonProps; text?: string }>([
   { props: {} },
   { props: { color: 'primary' } },
@@ -55,6 +57,14 @@ describe.each<{ props: ButtonProps; text?: string }>([
   { props: { color: 'ft', size: 'small', width: '300px', disabled: true } },
   { props: { color: 'ft', size: 'large', width: '300px', disabled: true } },
   {
+    props: {
+      color: 'primary',
+      size: 'small',
+      width: '300px',
+      onClick: mockOnClick,
+    },
+  },
+  {
     props: { color: 'primary', size: 'small', width: '300px' },
     text: 'Click me',
   },
@@ -81,6 +91,10 @@ describe.each<{ props: ButtonProps; text?: string }>([
   { props: { color: 'ft', size: 'small', width: '300px' }, text: 'Click me' },
   { props: { color: 'ft', size: 'large', width: '300px' }, text: 'Click me' },
 ])("Button (props: $props, text: '$text')", ({ props, text }) => {
+  beforeEach(() => {
+    jest.resetAllMocks();
+  });
+
   it('should render successfully', () => {
     render(<Button {...props}>{text}</Button>);
     const buttonElement = screen.getByRole('button');
@@ -91,6 +105,10 @@ describe.each<{ props: ButtonProps; text?: string }>([
     expect(buttonElement).toHaveProperty('disabled', props.disabled || false);
     expect(buttonElement).toHaveStyle({ width: props.width || 'auto' });
     expect(buttonElement.textContent).toEqual(text || 'Button');
+    if (props.onClick) {
+      buttonElement.click();
+      expect(mockOnClick).toHaveBeenCalled();
+    }
   });
 
   it.each(['https://example.org', '/about'])('should be linkable', (href) => {
