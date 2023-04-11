@@ -1,4 +1,11 @@
-import { Body, Controller, Post, Session } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  HttpCode,
+  HttpStatus,
+  Post,
+  Session,
+} from '@nestjs/common';
 import { DiscordCodeExchangeDto } from '@alekol/shared/dtos';
 import { IronSession } from 'iron-session';
 import { AuthService } from './auth.service';
@@ -17,5 +24,11 @@ export class AuthController {
     );
     await this.authService.saveDiscordUserInSession(session, discordUser);
     return session.user.accountLinking.discord;
+  }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('oauth2/discord/unlink')
+  async unlinkDiscord(@Session() session: IronSession) {
+    await this.authService.unlinkDiscord(session);
   }
 }

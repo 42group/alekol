@@ -1,3 +1,4 @@
+import { LinkableService } from '@alekol/shared/enums';
 import {
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
@@ -177,6 +178,67 @@ describe('AuthService', () => {
     });
     it('should save the session', async () => {
       await service.saveDiscordUserInSession(session, discordUser);
+      expect(session.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('unlinkService', () => {
+    let session: IronSession;
+
+    beforeEach(() => {
+      session = {
+        destroy: jest.fn().mockResolvedValueOnce(undefined),
+        save: jest.fn().mockResolvedValueOnce(undefined),
+      };
+    });
+
+    it('should remove the Discord user in the session', async () => {
+      const mockDiscordUser = {
+        id: faker.random.numeric(17),
+        name: faker.internet.userName(),
+        avatarUrl: faker.internet.url(),
+      };
+      session.user = {
+        accountLinking: {
+          discord: mockDiscordUser,
+        },
+      };
+      await service.unlinkService(session, LinkableService.DISCORD);
+      expect(session.user.accountLinking.discord).toBeUndefined();
+    });
+    it('should not do anything if the Discord user does not exist', async () => {
+      session.user = {
+        accountLinking: {},
+      };
+      await service.unlinkService(session, LinkableService.DISCORD);
+      expect(session.user.accountLinking.discord).toBeUndefined();
+    });
+    it('should not overwrite other fields of the session', async () => {
+      const mockDiscordUser = {
+        id: faker.random.numeric(17),
+        name: faker.internet.userName(),
+        avatarUrl: faker.internet.url(),
+      };
+      const mockFtUser = {
+        id: faker.random.numeric(17),
+        name: faker.internet.userName(),
+        avatarUrl: faker.internet.url(),
+      };
+      session.user = {
+        accountLinking: {
+          discord: mockDiscordUser,
+          ft: mockFtUser,
+        },
+      };
+      await service.unlinkService(session, LinkableService.DISCORD);
+      expect(session.user.accountLinking.discord).toBeUndefined();
+      expect(session.user.accountLinking.ft).toStrictEqual(mockFtUser);
+    });
+    it('should save the session', async () => {
+      session.user = {
+        accountLinking: {},
+      };
+      await service.unlinkService(session, LinkableService.DISCORD);
       expect(session.save).toHaveBeenCalled();
     });
   });
