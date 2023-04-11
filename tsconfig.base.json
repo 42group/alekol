@@ -16,6 +16,7 @@
     "baseUrl": ".",
     "paths": {
       "@alekol/shared/dtos": ["libs/shared/dtos/src/index.ts"],
+      "@alekol/shared/enums": ["libs/shared/enums/src/index.ts"],
       "@alekol/shared/hooks": ["libs/shared/hooks/src/index.ts"],
       "@alekol/shared/interfaces": ["libs/shared/interfaces/src/index.ts"],
       "@alekol/shared/ui": ["libs/shared/ui/src/index.ts"],
