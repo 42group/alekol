@@ -23,6 +23,7 @@ export interface AuthFormProps {
 export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
   const services = [
     {
+      id: 'discord',
       name: 'Discord',
       ...servicesConfig.discord,
       linkingComponent: (disabled?: boolean) => (
@@ -37,6 +38,7 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
       ),
     },
     {
+      id: 'ft',
       name: '42',
       ...servicesConfig.ft,
       linkingComponent: (disabled?: boolean) => (
@@ -56,6 +58,7 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
         return (
           <AccountLinking
             name={service.name}
+            id={service.id}
             linkingComponent={service.linkingComponent(disabled)}
             user={service.user}
             loading={loading}

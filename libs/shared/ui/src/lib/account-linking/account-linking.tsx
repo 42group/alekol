@@ -7,6 +7,7 @@ import { ReactElement, useState } from 'react';
 
 export interface AccountLinkingProps {
   disabled?: boolean;
+  id: string;
   linkingComponent: ReactElement;
   loading?: boolean;
   name: string;
@@ -15,6 +16,7 @@ export interface AccountLinkingProps {
 
 export function AccountLinking({
   disabled = false,
+  id,
   linkingComponent,
   loading = false,
   name,
@@ -23,6 +25,22 @@ export function AccountLinking({
   const [displayedUser, setDisplayedUser] = useState(user);
   const unlinkAccountOnClick = () => () => {
     setDisplayedUser(undefined);
+    fetch(`/api/auth/oauth2/${id}/unlink`, {
+      method: 'POST',
+    })
+      .then(async (res) => {
+        if (!res.ok) {
+          return res.json().then((error) => {
+            throw new Error(
+              error.message ||
+                'An unexpected error occured... Please try again.'
+            );
+          });
+        }
+      })
+      .catch(() => {
+        setDisplayedUser(user);
+      });
   };
 
   let children;
