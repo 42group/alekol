@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.3] - 2023-04-11
+
+### Features
+
+- allow unlinking an account
+
+### Security fixes
+
+- use OAuth2 states (more details about this security issue: https://auth0.com/docs/secure/attack-protection/state-parameters)
+
 ## [0.2.2] - 2023-04-08
 
 ### Fixes
