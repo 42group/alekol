@@ -1,4 +1,5 @@
 import Link from 'next/link';
+import { MouseEventHandler } from 'react';
 import styles from './button.module.scss';
 
 export interface ButtonProps {
@@ -6,6 +7,7 @@ export interface ButtonProps {
   color?: 'primary' | 'secondary' | 'danger' | 'discord' | 'ft';
   disabled?: boolean;
   href?: string;
+  onClick?: MouseEventHandler<HTMLButtonElement>;
   size?: 'small' | 'large';
   width?: string;
 }
@@ -15,6 +17,7 @@ export function Button({
   color = 'primary',
   disabled = false,
   href,
+  onClick,
   size = 'large',
   width = 'auto',
 }: ButtonProps) {
@@ -30,5 +33,9 @@ export function Button({
       </Link>
     );
   }
-  return <button {...globalProps}>{children}</button>;
+  return (
+    <button {...globalProps} onClick={onClick}>
+      {children}
+    </button>
+  );
 }
