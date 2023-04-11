@@ -90,4 +90,15 @@ describe('AuthController', () => {
       expect(response).toStrictEqual(linkedDiscord);
     });
   });
+
+  describe('unlinkDiscord', () => {
+    beforeEach(() => {
+      service.unlinkDiscord.mockResolvedValueOnce(undefined);
+    });
+
+    it('should remove the discord user from the session', async () => {
+      await controller.unlinkDiscord(session);
+      expect(service.unlinkDiscord).toHaveBeenCalledWith(session);
+    });
+  });
 });

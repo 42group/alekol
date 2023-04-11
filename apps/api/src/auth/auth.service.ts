@@ -1,5 +1,6 @@
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { LinkableService } from '@alekol/shared/enums';
 import {
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
@@ -83,5 +84,14 @@ export class AuthService {
       },
     };
     await session.save();
+  }
+
+  async unlinkService(session: IronSession, service: LinkableService) {
+    delete session.user.accountLinking[service];
+    await session.save();
+  }
+
+  async unlinkDiscord(session: IronSession) {
+    await this.unlinkService(session, LinkableService.DISCORD);
   }
 }
