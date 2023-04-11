@@ -14,13 +14,14 @@ ENV PORT=3000
 WORKDIR /usr/src
 
 RUN addgroup --system web && \
-          adduser --system -G web web
+          adduser --system -G web web && \
+          mkdir web
 
-COPY --from=builder /usr/src/dist/apps/web web
-RUN chown -R web:web .
-
+COPY --from=builder --chown=web:web /usr/src/dist/apps/web/package*.json web/
 # You can remove this install step if you build with `--bundle` option.
 # The bundled output will include external dependencies.
 RUN npm --prefix web --omit=dev -f install
+
+COPY --from=builder --chown=web:web /usr/src/dist/apps/web/. web/
 
 CMD [ "npm", "--prefix", "web", "run", "start" ]
