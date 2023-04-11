@@ -1,6 +1,6 @@
 import { AccountLinkingData } from '@alekol/shared/interfaces';
 import { faker } from '@faker-js/faker';
-import { render, screen } from '@testing-library/react';
+import { act, render, screen } from '@testing-library/react';
 import LoadingAvatar from '../loading-avatar/loading-avatar';
 import LoadingParagraph from '../loading-paragraph/loading-paragraph';
 
@@ -53,6 +53,21 @@ describe('AccountLinking', () => {
         expect.objectContaining({ children: mockUser.name }),
         {}
       );
+    });
+    it('should be able to unlink', () => {
+      render(
+        <AccountLinking
+          linkingComponent={<p>linking component</p>}
+          name={mockServiceName}
+          user={mockUser}
+        />
+      );
+      const unlinkButtonElement = screen.getByRole('button');
+      act(() => {
+        unlinkButtonElement.click();
+      });
+      const linkingComponent = screen.getByText('linking component');
+      expect(linkingComponent).toBeInTheDocument();
     });
   });
   describe('when the component is waiting for linking', () => {

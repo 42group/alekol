@@ -3,7 +3,7 @@ import { AccountLinkingData } from '@alekol/shared/interfaces';
 import LoadingAvatar from '../loading-avatar/loading-avatar';
 import LoadingParagraph from '../loading-paragraph/loading-paragraph';
 import styles from './account-linking.module.scss';
-import { ReactElement } from 'react';
+import { ReactElement, useState } from 'react';
 
 export interface AccountLinkingProps {
   disabled?: boolean;
@@ -20,6 +20,11 @@ export function AccountLinking({
   name,
   user,
 }: AccountLinkingProps) {
+  const [displayedUser, setDisplayedUser] = useState(user);
+  const unlinkAccountOnClick = () => () => {
+    setDisplayedUser(undefined);
+  };
+
   let children;
   if (loading) {
     children = (
@@ -31,12 +36,17 @@ export function AccountLinking({
         </Button>
       </>
     );
-  } else if (user) {
+  } else if (displayedUser) {
     children = (
       <>
-        <LoadingAvatar src={user.avatarUrl} />
-        <LoadingParagraph>{user.name}</LoadingParagraph>
-        <Button width="100%" color="danger" disabled={disabled}>
+        <LoadingAvatar src={displayedUser.avatarUrl} />
+        <LoadingParagraph>{displayedUser.name}</LoadingParagraph>
+        <Button
+          width="100%"
+          color="danger"
+          disabled={disabled}
+          onClick={unlinkAccountOnClick()}
+        >
           Unlink
         </Button>
       </>
