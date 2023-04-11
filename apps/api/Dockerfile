@@ -1,7 +1,8 @@
 # Builder
 FROM docker.io/node:lts-alpine AS builder
 WORKDIR /usr/src
-RUN npm install -g nx
+COPY package*.json ./
+RUN npm ci
 COPY . .
 RUN npx nx build api --generatePackageJson
 
