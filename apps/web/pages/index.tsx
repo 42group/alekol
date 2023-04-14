@@ -1,6 +1,11 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { User } from '@alekol/shared/interfaces';
-import { Button, DiscordOauth2Button, Separator } from '@alekol/shared/ui';
+import {
+  Button,
+  DiscordOauth2Button,
+  FtOauth2Button,
+  Separator,
+} from '@alekol/shared/ui';
 import { ironSessionWrapper } from '@alekol/shared/utils';
 import styles from '../styles/page-index.module.scss';
 import config from '../lib/config';
@@ -27,6 +32,16 @@ export function Index({ user }: IndexProps) {
       redirectUri={config.discord.redirectUri}
     />
   );
+  const ftButton = user.accountLinking.ft ? (
+    <Button href="/auth" color="ft" width="100%">
+      Login with 42
+    </Button>
+  ) : (
+    <FtOauth2Button
+      clientId={config.ft.clientId}
+      redirectUri={config.ft.redirectUri}
+    />
+  );
 
   return (
     <div className={styles.container}>
@@ -38,9 +53,7 @@ export function Index({ user }: IndexProps) {
       </div>
       <div className={styles.buttons}>
         {discordButton}
-        <Button color="ft" width="100%">
-          Login with 42
-        </Button>
+        {ftButton}
       </div>
     </div>
   );

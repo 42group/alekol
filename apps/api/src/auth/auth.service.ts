@@ -1,9 +1,15 @@
-import { Injectable, InternalServerErrorException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  Logger,
+} from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { LinkableService } from '@alekol/shared/enums';
 import {
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
+  FtAuthorizationCodeExchangeResponse,
+  FtUser,
 } from '@alekol/shared/interfaces';
 import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 import { IronSession } from 'iron-session';
@@ -13,12 +19,14 @@ import { catchError, firstValueFrom } from 'rxjs';
 @Injectable()
 export class AuthService {
   private discordApiBaseUrl: string;
+  private ftApiBaseUrl: string;
 
   constructor(
     private configService: ConfigService,
     private httpService: HttpService
   ) {
     this.discordApiBaseUrl = this.configService.get('discord.api.baseUrl');
+    this.ftApiBaseUrl = this.configService.get('ft.api.baseUrl');
   }
 
   async exchangeDiscordCode(
@@ -68,6 +76,53 @@ export class AuthService {
     return data;
   }
 
+  async exchange42Code(
+    code: string
+  ): Promise<FtAuthorizationCodeExchangeResponse> {
+    const body = new URLSearchParams({
+      client_id: this.configService.get('ft.api.clientId'),
+      client_secret: this.configService.get('ft.api.clientSecret'),
+      grant_type: 'authorization_code',
+      code,
+      redirect_uri: this.configService.get('ft.api.redirectUri'),
+    });
+    const { data } = await firstValueFrom(
+      this.httpService
+        .post<FtAuthorizationCodeExchangeResponse>(
+          `${this.ftApiBaseUrl}/oauth/token`,
+          body
+        )
+        .pipe(
+          catchError((error) => {
+            throw new InternalServerErrorException(error.message);
+          })
+        )
+    );
+    return data;
+  }
+
+  async exchange42CodeWithAccessToken(code: string) {
+    return this.exchange42Code(code).then((res) => res.access_token);
+  }
+
+  async exchange42CodeWithUser(code: string): Promise<FtUser> {
+    const accessToken = await this.exchange42CodeWithAccessToken(code);
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<FtUser>(`${this.ftApiBaseUrl}/me`, {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        })
+        .pipe(
+          catchError((error) => {
+            throw new InternalServerErrorException(error.message);
+          })
+        )
+    );
+    return data;
+  }
+
   async saveDiscordUserInSession(
     session: IronSession,
     discordUser: DiscordUser
@@ -86,6 +141,21 @@ export class AuthService {
     await session.save();
   }
 
+  async save42UserInSession(session: IronSession, ftUser: FtUser) {
+    session.user = {
+      ...session?.user,
+      accountLinking: {
+        ...session?.user?.accountLinking,
+        ft: {
+          id: ftUser.id,
+          name: `${ftUser.login}`,
+          avatarUrl: ftUser.image.link,
+        },
+      },
+    };
+    await session.save();
+  }
+
   async unlinkService(session: IronSession, service: LinkableService) {
     delete session.user.accountLinking[service];
     await session.save();
@@ -93,5 +163,9 @@ export class AuthService {
 
   async unlinkDiscord(session: IronSession) {
     await this.unlinkService(session, LinkableService.DISCORD);
+  }
+
+  async unlink42(session: IronSession) {
+    await this.unlinkService(session, LinkableService.FT);
   }
 }

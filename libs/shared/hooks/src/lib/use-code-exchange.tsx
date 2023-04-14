@@ -42,6 +42,10 @@ export const useCodeExchange = (service: string) => {
   }, [service]);
 };
 
+export const use42CodeExchange = () => {
+  return useCodeExchange('42');
+};
+
 export const useDiscordCodeExchange = () => {
   return useCodeExchange('discord');
 };
