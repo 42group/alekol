@@ -32,6 +32,12 @@ const nextConfig = {
         port: '',
         pathname: '/embed/avatars/**',
       },
+      {
+        protocol: 'https',
+        hostname: 'cdn.intra.42.fr',
+        port: '',
+        pathname: '/users/**',
+      },
     ],
   },
 };
