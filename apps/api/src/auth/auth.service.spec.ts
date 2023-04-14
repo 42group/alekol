@@ -2,6 +2,8 @@ import { LinkableService } from '@alekol/shared/enums';
 import {
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
+  FtAuthorizationCodeExchangeResponse,
+  FtUser,
 } from '@alekol/shared/interfaces';
 import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 import { faker } from '@faker-js/faker';
@@ -25,12 +27,27 @@ const config = () => ({
       redirectUri: faker.internet.url(),
     },
   },
+  ft: {
+    api: {
+      baseUrl: faker.internet.url(),
+      clientId: faker.random.numeric(17),
+      clientSecret: faker.random.numeric(17),
+      redirectUri: faker.internet.url(),
+    },
+  },
 });
 const discordUser: DiscordUser = {
   id: faker.random.numeric(17),
   username: faker.internet.userName(),
   discriminator: faker.random.numeric(4),
   avatar: faker.random.numeric(17),
+};
+const ftUser: FtUser = {
+  id: faker.random.numeric(17),
+  login: faker.internet.userName(),
+  image: {
+    link: faker.internet.avatar(),
+  },
 };
 
 describe('AuthService', () => {
@@ -139,6 +156,84 @@ describe('AuthService', () => {
     });
   });
 
+  describe('exchange42Code', () => {
+    beforeEach(() => {
+      httpService.post.mockImplementationOnce(() =>
+        of({
+          data: { access_token: accessToken },
+        } as AxiosResponse<FtAuthorizationCodeExchangeResponse>)
+      );
+    });
+
+    it('should exchange the code', async () => {
+      await service.exchange42Code(code);
+      expect(httpService.post).toHaveBeenCalledWith(
+        `${configService.get('ft.api.baseUrl')}/oauth/token`,
+        new URLSearchParams({
+          client_id: configService.get('ft.api.clientId'),
+          client_secret: configService.get('ft.api.clientSecret'),
+          grant_type: 'authorization_code',
+          code,
+          redirect_uri: configService.get('ft.api.redirectUri'),
+        })
+      );
+    });
+    it('should return raw data', async () => {
+      const response = await service.exchange42Code(code);
+      expect(response).toStrictEqual({ access_token: accessToken });
+    });
+  });
+
+  describe('exchange42CodeWithAccessToken', () => {
+    beforeEach(() => {
+      service.exchange42Code = jest
+        .fn()
+        .mockResolvedValueOnce({ access_token: accessToken });
+    });
+
+    it('should exchange the code', async () => {
+      await service.exchange42CodeWithAccessToken(code);
+      expect(service.exchange42Code).toHaveBeenCalledWith(code);
+    });
+    it('should return the access token from the raw data', async () => {
+      const response = await service.exchange42CodeWithAccessToken(code);
+      expect(response).toBe(accessToken);
+    });
+  });
+
+  describe('exchange42CodeWithUser', () => {
+    beforeEach(() => {
+      service.exchange42CodeWithAccessToken = jest
+        .fn()
+        .mockResolvedValueOnce(accessToken);
+      httpService.get.mockImplementationOnce(() =>
+        of({
+          data: ftUser,
+        } as AxiosResponse<FtUser>)
+      );
+    });
+
+    it('should exchange the code with an access token', async () => {
+      await service.exchange42CodeWithUser(code);
+      expect(service.exchange42CodeWithAccessToken).toHaveBeenCalledWith(code);
+    });
+    it('should fetch the user', async () => {
+      await service.exchange42CodeWithUser(code);
+      expect(httpService.get).toHaveBeenCalledWith(
+        `${configService.get('ft.api.baseUrl')}/me`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+    });
+    it('should return the raw 42 user', async () => {
+      const response = await service.exchange42CodeWithUser(code);
+      expect(response).toStrictEqual(ftUser);
+    });
+  });
+
   describe('saveDiscordUserInSession', () => {
     let session: IronSession;
 
@@ -158,14 +253,14 @@ describe('AuthService', () => {
       });
     });
     it('should not overwrite other fields of the session', async () => {
-      const ftUser = {
+      const mockFtUser = {
         id: faker.random.numeric(17),
         name: faker.internet.userName(),
-        avatarUrl: faker.internet.url(),
+        avatarUrl: faker.internet.avatar(),
       };
       session.user = {
         accountLinking: {
-          ft: ftUser,
+          ft: mockFtUser,
         },
       };
       await service.saveDiscordUserInSession(session, discordUser);
@@ -174,10 +269,55 @@ describe('AuthService', () => {
         name: `${discordUser.username}#${discordUser.discriminator}`,
         avatarUrl: generateDiscordUserAvatarUrl(discordUser),
       });
-      expect(session.user.accountLinking.ft).toStrictEqual(ftUser);
+      expect(session.user.accountLinking.ft).toStrictEqual(mockFtUser);
     });
     it('should save the session', async () => {
       await service.saveDiscordUserInSession(session, discordUser);
+      expect(session.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('save42UserInSession', () => {
+    let session: IronSession;
+
+    beforeEach(() => {
+      session = {
+        destroy: jest.fn().mockResolvedValueOnce(undefined),
+        save: jest.fn().mockResolvedValueOnce(undefined),
+      };
+    });
+
+    it('should save the 42 user in the session', async () => {
+      await service.save42UserInSession(session, ftUser);
+      expect(session.user.accountLinking.ft).toStrictEqual({
+        id: ftUser.id,
+        name: `${ftUser.login}`,
+        avatarUrl: ftUser.image.link,
+      });
+    });
+    it('should not overwrite other fields of the session', async () => {
+      const mockDiscordUser = {
+        id: faker.random.numeric(17),
+        name: faker.internet.userName(),
+        avatarUrl: faker.internet.avatar(),
+      };
+      session.user = {
+        accountLinking: {
+          discord: mockDiscordUser,
+        },
+      };
+      await service.save42UserInSession(session, ftUser);
+      expect(session.user.accountLinking.ft).toStrictEqual({
+        id: ftUser.id,
+        name: `${ftUser.login}`,
+        avatarUrl: ftUser.image.link,
+      });
+      expect(session.user.accountLinking.discord).toStrictEqual(
+        mockDiscordUser
+      );
+    });
+    it('should save the session', async () => {
+      await service.save42UserInSession(session, ftUser);
       expect(session.save).toHaveBeenCalled();
     });
   });

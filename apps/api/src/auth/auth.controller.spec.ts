@@ -5,10 +5,13 @@ import { faker } from '@faker-js/faker';
 import { IronSession } from 'iron-session';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
-import { DiscordUser } from '@alekol/shared/interfaces';
+import { DiscordUser, FtUser } from '@alekol/shared/interfaces';
 import { DiscordCodeExchangeDto } from '@alekol/shared/dtos';
 
 const discordCodeExchangeDto: DiscordCodeExchangeDto = {
+  code: faker.random.numeric(17),
+};
+const ftCodeExchangeDto: DiscordCodeExchangeDto = {
   code: faker.random.numeric(17),
 };
 
@@ -18,11 +21,23 @@ const discordUser: DiscordUser = {
   discriminator: faker.random.alpha(4),
   avatar: faker.random.numeric(17),
 };
+const ftUser: FtUser = {
+  id: faker.random.numeric(5),
+  login: faker.internet.userName(),
+  image: {
+    link: faker.internet.avatar(),
+  },
+};
 
 const linkedDiscord = {
   id: discordUser.id,
   name: `${discordUser.username}#${discordUser.discriminator}`,
   avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}`,
+};
+const linked42 = {
+  id: ftUser.id,
+  name: ftUser.login,
+  avatarUrl: ftUser.image.link,
 };
 
 describe('AuthController', () => {
@@ -99,6 +114,54 @@ describe('AuthController', () => {
     it('should remove the discord user from the session', async () => {
       await controller.unlinkDiscord(session);
       expect(service.unlinkDiscord).toHaveBeenCalledWith(session);
+    });
+  });
+
+  describe('exchange42Code', () => {
+    beforeEach(() => {
+      service.exchange42CodeWithUser.mockResolvedValueOnce(ftUser);
+      service.save42UserInSession.mockImplementation(
+        async (session, ftUser) => {
+          session.user = {
+            accountLinking: {
+              ft: {
+                id: ftUser.id,
+                name: `${ftUser.login}`,
+                avatarUrl: `${ftUser.image.link}`,
+              },
+            },
+          };
+        }
+      );
+    });
+
+    it('should exchange the code', async () => {
+      await controller.exchange42Code(ftCodeExchangeDto, session);
+      expect(service.exchange42CodeWithUser).toHaveBeenCalledWith(
+        ftCodeExchangeDto.code
+      );
+    });
+    it('should save the ft user in the session', async () => {
+      await controller.exchange42Code(ftCodeExchangeDto, session);
+      expect(service.save42UserInSession).toHaveBeenCalledWith(session, ftUser);
+    });
+    it('should return the ft user', async () => {
+      const response = await controller.exchange42Code(
+        ftCodeExchangeDto,
+        session
+      );
+      expect(response).toStrictEqual(linked42);
+    });
+  });
+
+  describe('unlink42', () => {
+    beforeEach(() => {
+      service.unlink42.mockResolvedValueOnce(undefined);
+    });
+
+    it('should remove the ft user from the session', async () => {
+      await controller.unlink42(session);
+      expect(service.unlink42).toHaveBeenCalledWith(session);
     });
   });
 });

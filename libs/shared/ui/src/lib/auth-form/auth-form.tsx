@@ -1,7 +1,7 @@
 import { AccountLinkingData } from '@alekol/shared/interfaces';
 import AccountLinking from '../account-linking/account-linking';
-import { Button } from '../button/button';
 import DiscordOauth2Button from '../discord-oauth2-button/discord-oauth2-button';
+import FtOauth2Button from '../ft-oauth2-button/ft-oauth2-button';
 import styles from './auth-form.module.scss';
 
 export type AuthServices = 'Discord' | '42';
@@ -38,13 +38,18 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
       ),
     },
     {
-      id: 'ft',
+      id: '42',
       name: '42',
       ...servicesConfig.ft,
       linkingComponent: (disabled?: boolean) => (
-        <Button width="100%" color="primary" disabled={disabled}>
+        <FtOauth2Button
+          clientId={servicesConfig.ft.clientId}
+          redirectUri={servicesConfig.ft.redirectUri}
+          color="primary"
+          disabled={disabled}
+        >
           Link
-        </Button>
+        </FtOauth2Button>
       ),
     },
   ];
