@@ -1,4 +1,3 @@
-import { generateFtOauth2Url } from '@alekol/shared/utils';
 import { faker } from '@faker-js/faker';
 import { act, render } from '@testing-library/react';
 import { Button } from '../button/button';
@@ -10,6 +9,7 @@ jest.mock('../button/button');
 const clientId = faker.random.numeric(17);
 const redirectUri = faker.internet.url();
 const serviceName = faker.company.name();
+const mockOauth2Url = faker.internet.url();
 
 type Oauth2ButtonOptionalProps = {
   [P in keyof Oauth2ButtonProps]?: Oauth2ButtonProps[P];
@@ -59,7 +59,12 @@ describe.each<{ props: Oauth2ButtonOptionalProps }>([
 
   it('should render successfully', () => {
     const { baseElement } = render(
-      <Oauth2Button {...props} clientId={clientId} redirectUri={redirectUri}>
+      <Oauth2Button
+        {...props}
+        clientId={clientId}
+        generateOauth2Url={() => mockOauth2Url}
+        redirectUri={redirectUri}
+      >
         {`Login with ${serviceName}`}
       </Oauth2Button>
     );
@@ -68,17 +73,35 @@ describe.each<{ props: Oauth2ButtonOptionalProps }>([
       expect.objectContaining({
         color: props.color || 'primary',
         disabled: props.disabled || false,
-        href: props.disabled
-          ? undefined
-          : generateFtOauth2Url(clientId, redirectUri),
+        href: props.disabled ? undefined : mockOauth2Url,
         width: props.width || 'auto',
       }),
       {}
     );
   });
+  it('should generate the link', () => {
+    const mockGenerateOauth2Url = jest.fn(() => mockOauth2Url);
+
+    render(
+      <Oauth2Button
+        {...props}
+        clientId={clientId}
+        generateOauth2Url={mockGenerateOauth2Url}
+        redirectUri={redirectUri}
+      >
+        {`Login with ${serviceName}`}
+      </Oauth2Button>
+    );
+    expect(mockGenerateOauth2Url).toHaveBeenCalledWith(clientId, redirectUri);
+  });
   it('should disable the button while the URL is generating', () => {
     render(
-      <Oauth2Button {...props} clientId={clientId} redirectUri={redirectUri}>
+      <Oauth2Button
+        {...props}
+        clientId={clientId}
+        generateOauth2Url={() => mockOauth2Url}
+        redirectUri={redirectUri}
+      >
         {`Login with ${serviceName}`}
       </Oauth2Button>
     );
@@ -90,9 +113,7 @@ describe.each<{ props: Oauth2ButtonOptionalProps }>([
     );
     expect(Button).toHaveBeenCalledWith(
       expect.objectContaining({
-        href: props.disabled
-          ? undefined
-          : generateFtOauth2Url(clientId, redirectUri),
+        href: props.disabled ? undefined : mockOauth2Url,
       }),
       {}
     );

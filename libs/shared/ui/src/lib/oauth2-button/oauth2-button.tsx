@@ -1,5 +1,4 @@
 import { Button, ButtonProps } from '../button/button';
-import { generateFtOauth2Url } from '@alekol/shared/utils';
 import { useEffect, useState } from 'react';
 
 export interface Oauth2ButtonProps {
@@ -7,6 +6,7 @@ export interface Oauth2ButtonProps {
   clientId: string;
   color?: ButtonProps['color'];
   disabled?: boolean;
+  generateOauth2Url: (clientId: string, redirectUri: string) => string;
   redirectUri: string;
   width?: ButtonProps['width'];
 }
@@ -16,14 +16,15 @@ export function Oauth2Button({
   clientId,
   color = 'primary',
   disabled = false,
+  generateOauth2Url,
   redirectUri,
   width = 'auto',
 }: Oauth2ButtonProps) {
   const [href, setHref] = useState<string>();
 
   useEffect(() => {
-    setHref(generateFtOauth2Url(clientId, redirectUri));
-  }, [clientId, redirectUri]);
+    setHref(generateOauth2Url(clientId, redirectUri));
+  }, [clientId, generateOauth2Url, redirectUri]);
 
   return (
     <Button
