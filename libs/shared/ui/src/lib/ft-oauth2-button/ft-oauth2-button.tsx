@@ -1,6 +1,5 @@
-import { Button, ButtonProps } from '../button/button';
-import { generateFtOauth2Url } from '@alekol/shared/utils';
-import { useEffect, useState } from 'react';
+import { ButtonProps } from '../button/button';
+import { Oauth2Button } from '../oauth2-button/oauth2-button';
 
 export interface FtOauth2ButtonProps {
   children?: string;
@@ -11,28 +10,22 @@ export interface FtOauth2ButtonProps {
 }
 
 export function FtOauth2Button({
-  children = 'Login with 42',
+  children,
   clientId,
   color = 'ft',
   disabled = false,
   redirectUri,
 }: FtOauth2ButtonProps) {
-  const [href, setHref] = useState<string>();
-
-  useEffect(() => {
-    setHref(generateFtOauth2Url(clientId, redirectUri));
-  }, [clientId, redirectUri]);
-
   return (
-    <Button
-      data-testid="ft-oauth2-button"
-      href={disabled ? undefined : href}
+    <Oauth2Button
+      clientId={clientId}
       color={color}
+      disabled={disabled}
+      redirectUri={redirectUri}
       width="100%"
-      disabled={disabled || !href}
     >
-      {children}
-    </Button>
+      {children || 'Login with 42'}
+    </Oauth2Button>
   );
 }
 
