@@ -1,6 +1,5 @@
-import { Button, ButtonProps } from '../button/button';
-import { generateDiscordOauth2Url } from '@alekol/shared/utils';
-import { useEffect, useState } from 'react';
+import { ButtonProps } from '../button/button';
+import { Oauth2Button } from '../oauth2-button/oauth2-button';
 
 export interface DiscordOauth2ButtonProps {
   children?: string;
@@ -11,28 +10,22 @@ export interface DiscordOauth2ButtonProps {
 }
 
 export function DiscordOauth2Button({
-  children = 'Login with Discord',
+  children,
   clientId,
   color = 'discord',
   disabled = false,
   redirectUri,
 }: DiscordOauth2ButtonProps) {
-  const [href, setHref] = useState<string>();
-
-  useEffect(() => {
-    setHref(generateDiscordOauth2Url(clientId, redirectUri));
-  }, [clientId, redirectUri]);
-
   return (
-    <Button
-      data-testid="discord-oauth2-button"
-      href={disabled ? undefined : href}
+    <Oauth2Button
+      clientId={clientId}
       color={color}
+      disabled={disabled}
+      redirectUri={redirectUri}
       width="100%"
-      disabled={disabled || !href}
     >
-      {children}
-    </Button>
+      {children || 'Login with Discord'}
+    </Oauth2Button>
   );
 }
 
