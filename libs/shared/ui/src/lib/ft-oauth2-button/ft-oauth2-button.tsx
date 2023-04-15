@@ -1,3 +1,4 @@
+import { generateFtOauth2Url } from '@alekol/shared/utils';
 import { ButtonProps } from '../button/button';
 import { Oauth2Button } from '../oauth2-button/oauth2-button';
 
@@ -21,6 +22,7 @@ export function FtOauth2Button({
       clientId={clientId}
       color={color}
       disabled={disabled}
+      generateOauth2Url={generateFtOauth2Url}
       redirectUri={redirectUri}
       width="100%"
     >

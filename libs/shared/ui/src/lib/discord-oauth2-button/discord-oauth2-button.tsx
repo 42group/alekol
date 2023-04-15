@@ -1,3 +1,4 @@
+import { generateDiscordOauth2Url } from '@alekol/shared/utils';
 import { ButtonProps } from '../button/button';
 import { Oauth2Button } from '../oauth2-button/oauth2-button';
 
@@ -21,6 +22,7 @@ export function DiscordOauth2Button({
       clientId={clientId}
       color={color}
       disabled={disabled}
+      generateOauth2Url={generateDiscordOauth2Url}
       redirectUri={redirectUri}
       width="100%"
     >
