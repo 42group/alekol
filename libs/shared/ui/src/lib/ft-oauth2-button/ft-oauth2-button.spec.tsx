@@ -43,13 +43,13 @@ describe.each<{ props: FtOauth2ButtonOptionalProps; text?: string }>([
     if (props.disabled) buttonElement = screen.getByRole('button');
     else buttonElement = screen.getByRole('link');
     expect(buttonElement).toBeInTheDocument();
-    expect(buttonElement).toHaveClass(props.color || 'discord');
+    expect(buttonElement).toHaveClass(props.color || 'ft');
     if (props.disabled) expect(buttonElement).toHaveProperty('disabled', true);
     else
       expect(buttonElement).toHaveProperty(
         'href',
         generateFtOauth2Url(clientId, redirectUri)
       );
-    expect(buttonElement.textContent).toBe(text || 'Login with Ft');
+    expect(buttonElement.textContent).toBe(text || 'Login with 42');
   });
 });
