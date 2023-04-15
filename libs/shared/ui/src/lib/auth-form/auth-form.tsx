@@ -67,6 +67,7 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
             linkingComponent={service.linkingComponent(disabled)}
             user={service.user}
             loading={loading}
+            disabled={disabled}
             key={service.name}
           />
         );
