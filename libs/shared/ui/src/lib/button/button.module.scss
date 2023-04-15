@@ -83,14 +83,14 @@
   }
 
   &.ft {
-    background: $dark-brand-42;
+    background: $dark-brand-ft;
     color: $dark-neutral-white;
 
     &:disabled {
-      border: 2px solid $dark-brand-42-50;
+      border: 2px solid $dark-brand-ft-50;
 
-      background: $dark-brand-42-20;
-      color: $dark-brand-42-50;
+      background: $dark-brand-ft-20;
+      color: $dark-brand-ft-50;
     }
   }
 }

@@ -156,7 +156,7 @@ describe('AuthService', () => {
     });
   });
 
-  describe('exchange42Code', () => {
+  describe('exchangeFtCode', () => {
     beforeEach(() => {
       httpService.post.mockImplementationOnce(() =>
         of({
@@ -166,7 +166,7 @@ describe('AuthService', () => {
     });
 
     it('should exchange the code', async () => {
-      await service.exchange42Code(code);
+      await service.exchangeFtCode(code);
       expect(httpService.post).toHaveBeenCalledWith(
         `${configService.get('ft.api.baseUrl')}/oauth/token`,
         new URLSearchParams({
@@ -179,31 +179,31 @@ describe('AuthService', () => {
       );
     });
     it('should return raw data', async () => {
-      const response = await service.exchange42Code(code);
+      const response = await service.exchangeFtCode(code);
       expect(response).toStrictEqual({ access_token: accessToken });
     });
   });
 
-  describe('exchange42CodeWithAccessToken', () => {
+  describe('exchangeFtCodeWithAccessToken', () => {
     beforeEach(() => {
-      service.exchange42Code = jest
+      service.exchangeFtCode = jest
         .fn()
         .mockResolvedValueOnce({ access_token: accessToken });
     });
 
     it('should exchange the code', async () => {
-      await service.exchange42CodeWithAccessToken(code);
-      expect(service.exchange42Code).toHaveBeenCalledWith(code);
+      await service.exchangeFtCodeWithAccessToken(code);
+      expect(service.exchangeFtCode).toHaveBeenCalledWith(code);
     });
     it('should return the access token from the raw data', async () => {
-      const response = await service.exchange42CodeWithAccessToken(code);
+      const response = await service.exchangeFtCodeWithAccessToken(code);
       expect(response).toBe(accessToken);
     });
   });
 
-  describe('exchange42CodeWithUser', () => {
+  describe('exchangeFtCodeWithUser', () => {
     beforeEach(() => {
-      service.exchange42CodeWithAccessToken = jest
+      service.exchangeFtCodeWithAccessToken = jest
         .fn()
         .mockResolvedValueOnce(accessToken);
       httpService.get.mockImplementationOnce(() =>
@@ -214,11 +214,11 @@ describe('AuthService', () => {
     });
 
     it('should exchange the code with an access token', async () => {
-      await service.exchange42CodeWithUser(code);
-      expect(service.exchange42CodeWithAccessToken).toHaveBeenCalledWith(code);
+      await service.exchangeFtCodeWithUser(code);
+      expect(service.exchangeFtCodeWithAccessToken).toHaveBeenCalledWith(code);
     });
     it('should fetch the user', async () => {
-      await service.exchange42CodeWithUser(code);
+      await service.exchangeFtCodeWithUser(code);
       expect(httpService.get).toHaveBeenCalledWith(
         `${configService.get('ft.api.baseUrl')}/me`,
         {
@@ -229,7 +229,7 @@ describe('AuthService', () => {
       );
     });
     it('should return the raw 42 user', async () => {
-      const response = await service.exchange42CodeWithUser(code);
+      const response = await service.exchangeFtCodeWithUser(code);
       expect(response).toStrictEqual(ftUser);
     });
   });
@@ -277,7 +277,7 @@ describe('AuthService', () => {
     });
   });
 
-  describe('save42UserInSession', () => {
+  describe('saveFtUserInSession', () => {
     let session: IronSession;
 
     beforeEach(() => {
@@ -288,7 +288,7 @@ describe('AuthService', () => {
     });
 
     it('should save the 42 user in the session', async () => {
-      await service.save42UserInSession(session, ftUser);
+      await service.saveFtUserInSession(session, ftUser);
       expect(session.user.accountLinking.ft).toStrictEqual({
         id: ftUser.id,
         name: `${ftUser.login}`,
@@ -306,7 +306,7 @@ describe('AuthService', () => {
           discord: mockDiscordUser,
         },
       };
-      await service.save42UserInSession(session, ftUser);
+      await service.saveFtUserInSession(session, ftUser);
       expect(session.user.accountLinking.ft).toStrictEqual({
         id: ftUser.id,
         name: `${ftUser.login}`,
@@ -317,7 +317,7 @@ describe('AuthService', () => {
       );
     });
     it('should save the session', async () => {
-      await service.save42UserInSession(session, ftUser);
+      await service.saveFtUserInSession(session, ftUser);
       expect(session.save).toHaveBeenCalled();
     });
   });

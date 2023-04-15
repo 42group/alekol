@@ -28,14 +28,14 @@ export class AuthController {
   }
 
   @Post('oauth2/42/code')
-  async exchange42Code(
+  async exchangeFtCode(
     @Body() ftCodeExchangeDto: FtCodeExchangeDto,
     @Session() session: IronSession
   ) {
-    const ftUser = await this.authService.exchange42CodeWithUser(
+    const ftUser = await this.authService.exchangeFtCodeWithUser(
       ftCodeExchangeDto.code
     );
-    await this.authService.save42UserInSession(session, ftUser);
+    await this.authService.saveFtUserInSession(session, ftUser);
     return session.user.accountLinking.ft;
   }
 
@@ -47,7 +47,7 @@ export class AuthController {
 
   @HttpCode(HttpStatus.NO_CONTENT)
   @Post('oauth2/42/unlink')
-  async unlink42(@Session() session: IronSession) {
-    await this.authService.unlink42(session);
+  async unlinkFt(@Session() session: IronSession) {
+    await this.authService.unlinkFt(session);
   }
 }

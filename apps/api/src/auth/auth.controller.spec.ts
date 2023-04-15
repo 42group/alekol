@@ -34,7 +34,7 @@ const linkedDiscord = {
   name: `${discordUser.username}#${discordUser.discriminator}`,
   avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}`,
 };
-const linked42 = {
+const linkedFt = {
   id: ftUser.id,
   name: ftUser.login,
   avatarUrl: ftUser.image.link,
@@ -117,10 +117,10 @@ describe('AuthController', () => {
     });
   });
 
-  describe('exchange42Code', () => {
+  describe('exchangeFtCode', () => {
     beforeEach(() => {
-      service.exchange42CodeWithUser.mockResolvedValueOnce(ftUser);
-      service.save42UserInSession.mockImplementation(
+      service.exchangeFtCodeWithUser.mockResolvedValueOnce(ftUser);
+      service.saveFtUserInSession.mockImplementation(
         async (session, ftUser) => {
           session.user = {
             accountLinking: {
@@ -136,32 +136,32 @@ describe('AuthController', () => {
     });
 
     it('should exchange the code', async () => {
-      await controller.exchange42Code(ftCodeExchangeDto, session);
-      expect(service.exchange42CodeWithUser).toHaveBeenCalledWith(
+      await controller.exchangeFtCode(ftCodeExchangeDto, session);
+      expect(service.exchangeFtCodeWithUser).toHaveBeenCalledWith(
         ftCodeExchangeDto.code
       );
     });
     it('should save the ft user in the session', async () => {
-      await controller.exchange42Code(ftCodeExchangeDto, session);
-      expect(service.save42UserInSession).toHaveBeenCalledWith(session, ftUser);
+      await controller.exchangeFtCode(ftCodeExchangeDto, session);
+      expect(service.saveFtUserInSession).toHaveBeenCalledWith(session, ftUser);
     });
     it('should return the ft user', async () => {
-      const response = await controller.exchange42Code(
+      const response = await controller.exchangeFtCode(
         ftCodeExchangeDto,
         session
       );
-      expect(response).toStrictEqual(linked42);
+      expect(response).toStrictEqual(linkedFt);
     });
   });
 
-  describe('unlink42', () => {
+  describe('unlinkFt', () => {
     beforeEach(() => {
-      service.unlink42.mockResolvedValueOnce(undefined);
+      service.unlinkFt.mockResolvedValueOnce(undefined);
     });
 
     it('should remove the ft user from the session', async () => {
-      await controller.unlink42(session);
-      expect(service.unlink42).toHaveBeenCalledWith(session);
+      await controller.unlinkFt(session);
+      expect(service.unlinkFt).toHaveBeenCalledWith(session);
     });
   });
 });
