@@ -42,7 +42,7 @@ export const useCodeExchange = (service: string) => {
   }, [service]);
 };
 
-export const use42CodeExchange = () => {
+export const useFtCodeExchange = () => {
   return useCodeExchange('42');
 };
 

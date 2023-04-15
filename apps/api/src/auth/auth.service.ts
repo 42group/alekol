@@ -76,7 +76,7 @@ export class AuthService {
     return data;
   }
 
-  async exchange42Code(
+  async exchangeFtCode(
     code: string
   ): Promise<FtAuthorizationCodeExchangeResponse> {
     const body = new URLSearchParams({
@@ -101,12 +101,12 @@ export class AuthService {
     return data;
   }
 
-  async exchange42CodeWithAccessToken(code: string) {
-    return this.exchange42Code(code).then((res) => res.access_token);
+  async exchangeFtCodeWithAccessToken(code: string) {
+    return this.exchangeFtCode(code).then((res) => res.access_token);
   }
 
-  async exchange42CodeWithUser(code: string): Promise<FtUser> {
-    const accessToken = await this.exchange42CodeWithAccessToken(code);
+  async exchangeFtCodeWithUser(code: string): Promise<FtUser> {
+    const accessToken = await this.exchangeFtCodeWithAccessToken(code);
     const { data } = await firstValueFrom(
       this.httpService
         .get<FtUser>(`${this.ftApiBaseUrl}/me`, {
@@ -141,7 +141,7 @@ export class AuthService {
     await session.save();
   }
 
-  async save42UserInSession(session: IronSession, ftUser: FtUser) {
+  async saveFtUserInSession(session: IronSession, ftUser: FtUser) {
     session.user = {
       ...session?.user,
       accountLinking: {
@@ -165,7 +165,7 @@ export class AuthService {
     await this.unlinkService(session, LinkableService.DISCORD);
   }
 
-  async unlink42(session: IronSession) {
+  async unlinkFt(session: IronSession) {
     await this.unlinkService(session, LinkableService.FT);
   }
 }

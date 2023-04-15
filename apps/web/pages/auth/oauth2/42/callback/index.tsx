@@ -2,7 +2,7 @@ import { withIronSessionSsr } from 'iron-session/next';
 import { User } from '@alekol/shared/interfaces';
 import { AuthForm } from '@alekol/shared/ui';
 import { ironSessionWrapper } from '@alekol/shared/utils';
-import { use42CodeExchange } from '@alekol/shared/hooks';
+import { useFtCodeExchange } from '@alekol/shared/hooks';
 import config from '../../../../../lib/config';
 
 export const getServerSideProps = withIronSessionSsr(
@@ -31,7 +31,7 @@ export function Callback({ user }: DiscordOauth2CallbackProps) {
     },
   };
 
-  use42CodeExchange();
+  useFtCodeExchange();
 
   return <AuthForm servicesConfig={servicesConfig} loadingService="42" />;
 }
