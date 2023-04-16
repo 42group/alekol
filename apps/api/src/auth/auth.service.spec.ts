@@ -1,5 +1,6 @@
 import { LinkableService } from '@alekol/shared/enums';
 import {
+  AccountLinkingData,
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
   FtAuthorizationCodeExchangeResponse,
@@ -48,6 +49,16 @@ const ftUser: FtUser = {
   image: {
     link: faker.internet.avatar(),
   },
+};
+const linkedDiscord: AccountLinkingData = {
+  id: discordUser.id,
+  name: `${discordUser.username}#${discordUser.discriminator}`,
+  avatarUrl: generateDiscordUserAvatarUrl(discordUser),
+};
+const linkedFt: AccountLinkingData = {
+  id: ftUser.id,
+  name: ftUser.login,
+  avatarUrl: ftUser.image.link,
 };
 
 describe('AuthService', () => {
@@ -234,6 +245,49 @@ describe('AuthService', () => {
     });
   });
 
+  describe.each([
+    {
+      accountLinking: { discord: linkedDiscord },
+      initialSession: { ft: linkedFt },
+    },
+    {
+      accountLinking: { ft: linkedFt },
+      initialSession: { discord: linkedDiscord },
+    },
+    {
+      accountLinking: { discord: linkedDiscord, ft: linkedFt },
+      initialSession: {},
+    },
+  ])('linkServices', ({ accountLinking, initialSession }) => {
+    let session: IronSession;
+
+    beforeEach(() => {
+      session = {
+        destroy: jest.fn().mockResolvedValueOnce(undefined),
+        save: jest.fn().mockResolvedValueOnce(undefined),
+      };
+    });
+
+    it('should save the user in the session', async () => {
+      await service.linkServices(session, accountLinking);
+      expect(session.user.accountLinking).toStrictEqual(accountLinking);
+    });
+    it('should not overwrite other fields of the session', async () => {
+      session.user = {
+        accountLinking: initialSession,
+      };
+      await service.linkServices(session, accountLinking);
+      expect(session.user.accountLinking).toStrictEqual({
+        ...initialSession,
+        ...accountLinking,
+      });
+    });
+    it('should save the session', async () => {
+      await service.linkServices(session, accountLinking);
+      expect(session.save).toHaveBeenCalled();
+    });
+  });
+
   describe('saveDiscordUserInSession', () => {
     let session: IronSession;
 
@@ -245,35 +299,15 @@ describe('AuthService', () => {
     });
 
     it('should save the Discord user in the session', async () => {
+      service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
       await service.saveDiscordUserInSession(session, discordUser);
-      expect(session.user.accountLinking.discord).toStrictEqual({
-        id: discordUser.id,
-        name: `${discordUser.username}#${discordUser.discriminator}`,
-        avatarUrl: generateDiscordUserAvatarUrl(discordUser),
-      });
-    });
-    it('should not overwrite other fields of the session', async () => {
-      const mockFtUser = {
-        id: faker.random.numeric(17),
-        name: faker.internet.userName(),
-        avatarUrl: faker.internet.avatar(),
-      };
-      session.user = {
-        accountLinking: {
-          ft: mockFtUser,
+      expect(service.linkServices).toHaveBeenCalledWith(session, {
+        discord: {
+          id: discordUser.id,
+          name: `${discordUser.username}#${discordUser.discriminator}`,
+          avatarUrl: generateDiscordUserAvatarUrl(discordUser),
         },
-      };
-      await service.saveDiscordUserInSession(session, discordUser);
-      expect(session.user.accountLinking.discord).toStrictEqual({
-        id: discordUser.id,
-        name: `${discordUser.username}#${discordUser.discriminator}`,
-        avatarUrl: generateDiscordUserAvatarUrl(discordUser),
       });
-      expect(session.user.accountLinking.ft).toStrictEqual(mockFtUser);
-    });
-    it('should save the session', async () => {
-      await service.saveDiscordUserInSession(session, discordUser);
-      expect(session.save).toHaveBeenCalled();
     });
   });
 
@@ -288,37 +322,15 @@ describe('AuthService', () => {
     });
 
     it('should save the 42 user in the session', async () => {
+      service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
       await service.saveFtUserInSession(session, ftUser);
-      expect(session.user.accountLinking.ft).toStrictEqual({
-        id: ftUser.id,
-        name: `${ftUser.login}`,
-        avatarUrl: ftUser.image.link,
-      });
-    });
-    it('should not overwrite other fields of the session', async () => {
-      const mockDiscordUser = {
-        id: faker.random.numeric(17),
-        name: faker.internet.userName(),
-        avatarUrl: faker.internet.avatar(),
-      };
-      session.user = {
-        accountLinking: {
-          discord: mockDiscordUser,
+      expect(service.linkServices).toHaveBeenCalledWith(session, {
+        ft: {
+          id: ftUser.id,
+          name: ftUser.login,
+          avatarUrl: ftUser.image.link,
         },
-      };
-      await service.saveFtUserInSession(session, ftUser);
-      expect(session.user.accountLinking.ft).toStrictEqual({
-        id: ftUser.id,
-        name: `${ftUser.login}`,
-        avatarUrl: ftUser.image.link,
       });
-      expect(session.user.accountLinking.discord).toStrictEqual(
-        mockDiscordUser
-      );
-    });
-    it('should save the session', async () => {
-      await service.saveFtUserInSession(session, ftUser);
-      expect(session.save).toHaveBeenCalled();
     });
   });
 

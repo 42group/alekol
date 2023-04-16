@@ -6,6 +6,7 @@ import {
 import { ConfigService } from '@nestjs/config';
 import { LinkableService } from '@alekol/shared/enums';
 import {
+  AccountLinkingData,
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
   FtAuthorizationCodeExchangeResponse,
@@ -123,37 +124,41 @@ export class AuthService {
     return data;
   }
 
-  async saveDiscordUserInSession(
+  async linkServices(
     session: IronSession,
-    discordUser: DiscordUser
+    services: { [key in LinkableService]?: AccountLinkingData }
   ) {
     session.user = {
       ...session?.user,
       accountLinking: {
         ...session?.user?.accountLinking,
-        discord: {
-          id: discordUser.id,
-          name: `${discordUser.username}#${discordUser.discriminator}`,
-          avatarUrl: generateDiscordUserAvatarUrl(discordUser),
-        },
+        ...services,
       },
     };
     await session.save();
   }
 
-  async saveFtUserInSession(session: IronSession, ftUser: FtUser) {
-    session.user = {
-      ...session?.user,
-      accountLinking: {
-        ...session?.user?.accountLinking,
-        ft: {
-          id: ftUser.id,
-          name: `${ftUser.login}`,
-          avatarUrl: ftUser.image.link,
-        },
+  async saveDiscordUserInSession(
+    session: IronSession,
+    discordUser: DiscordUser
+  ) {
+    return this.linkServices(session, {
+      discord: {
+        id: discordUser.id,
+        name: `${discordUser.username}#${discordUser.discriminator}`,
+        avatarUrl: generateDiscordUserAvatarUrl(discordUser),
       },
-    };
-    await session.save();
+    });
+  }
+
+  async saveFtUserInSession(session: IronSession, ftUser: FtUser) {
+    return this.linkServices(session, {
+      ft: {
+        id: ftUser.id,
+        name: ftUser.login,
+        avatarUrl: ftUser.image.link,
+      },
+    });
   }
 
   async unlinkService(session: IronSession, service: LinkableService) {
