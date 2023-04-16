@@ -12,6 +12,7 @@ jest.mock(
     mockAccountLinking(props);
   }
 );
+const mockUnlinkService = jest.fn(() => jest.fn());
 
 const generateServiceConfig = () => ({
   clientId: faker.random.alphaNumeric(17),
@@ -38,6 +39,7 @@ describe('AuthForm', () => {
           [LinkableService.Discord]: discordConfig,
           [LinkableService.Ft]: ftConfig,
         }}
+        unlinkService={mockUnlinkService}
       />
     );
     const baseElement = screen.getByTestId('auth-form');
@@ -53,6 +55,7 @@ describe('AuthForm', () => {
             [LinkableService.Ft]: ftConfig,
           }}
           loadingService={LinkableService.Discord}
+          unlinkService={mockUnlinkService}
         />
       );
       const baseElement = screen.getByTestId('auth-form');
@@ -69,6 +72,7 @@ describe('AuthForm', () => {
             [LinkableService.Ft]: ftConfig,
           }}
           loadingService={LinkableService.Discord}
+          unlinkService={mockUnlinkService}
         />
       );
       const baseElement = screen.getByTestId('auth-form');

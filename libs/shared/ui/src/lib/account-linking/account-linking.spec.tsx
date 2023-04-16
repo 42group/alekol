@@ -9,6 +9,8 @@ import AccountLinking from './account-linking';
 
 jest.mock('../loading-avatar/loading-avatar');
 jest.mock('../loading-paragraph/loading-paragraph');
+const mockRollbackUnlink = jest.fn();
+const mockUnlinkService = jest.fn(() => mockRollbackUnlink);
 
 const mockServiceName = faker.company.name();
 const mockServiceId = mockServiceName.toLowerCase();
@@ -19,6 +21,9 @@ const mockUser: AccountLinkingData = {
 };
 
 describe('AccountLinking', () => {
+  beforeEach(() => {
+    jest.clearAllMocks();
+  });
   describe('when the component is loading', () => {
     it('should render loading components', () => {
       render(
@@ -27,6 +32,7 @@ describe('AccountLinking', () => {
           loading={true}
           linkingComponent={<p>link</p>}
           name={mockServiceName}
+          unlinkService={mockUnlinkService}
         />
       );
       expect(LoadingAvatar).toHaveBeenCalledWith(
@@ -46,6 +52,7 @@ describe('AccountLinking', () => {
           id={mockServiceId}
           linkingComponent={<p>link</p>}
           name={mockServiceName}
+          unlinkService={mockUnlinkService}
           user={mockUser}
         />
       );
@@ -64,6 +71,7 @@ describe('AccountLinking', () => {
           id={mockServiceId}
           linkingComponent={<p>linking component</p>}
           name={mockServiceName}
+          unlinkService={mockUnlinkService}
           user={mockUser}
         />
       );
@@ -77,6 +85,7 @@ describe('AccountLinking', () => {
         `/api/auth/oauth2/${mockServiceId}/unlink`,
         expect.objectContaining({ method: 'POST' })
       );
+      expect(mockUnlinkService).toHaveBeenCalledWith(mockServiceId);
     });
   });
   describe('when the component is waiting for linking', () => {
@@ -86,6 +95,7 @@ describe('AccountLinking', () => {
           id={mockServiceId}
           linkingComponent={<p>linking component</p>}
           name={mockServiceName}
+          unlinkService={mockUnlinkService}
         />
       );
       const linkingComponent = screen.getByText('linking component');
