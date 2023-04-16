@@ -1,5 +1,15 @@
 # Changelog
 
+## [0.2.4] - 2023-04-16
+
+### Features
+
+- add 42 authentication
+
+### Fixes
+
+- actually disable buttons (styles were just applied)
+
 ## [0.2.3] - 2023-04-11
 
 ### Features
