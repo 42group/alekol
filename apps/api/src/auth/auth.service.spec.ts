@@ -61,6 +61,15 @@ const linkedFt: AccountLinkingData = {
   avatarUrl: ftUser.image.link,
 };
 
+let mockSession: IronSession;
+
+beforeEach(() => {
+  mockSession = {
+    destroy: jest.fn().mockResolvedValueOnce(undefined),
+    save: jest.fn().mockResolvedValueOnce(undefined),
+  };
+});
+
 describe('AuthService', () => {
   let service: AuthService;
   let configService: DeepMocked<ConfigService>;
@@ -259,49 +268,31 @@ describe('AuthService', () => {
       initialSession: {},
     },
   ])('linkServices', ({ accountLinking, initialSession }) => {
-    let session: IronSession;
-
-    beforeEach(() => {
-      session = {
-        destroy: jest.fn().mockResolvedValueOnce(undefined),
-        save: jest.fn().mockResolvedValueOnce(undefined),
-      };
-    });
-
     it('should save the user in the session', async () => {
-      await service.linkServices(session, accountLinking);
-      expect(session.user.accountLinking).toStrictEqual(accountLinking);
+      await service.linkServices(mockSession, accountLinking);
+      expect(mockSession.user.accountLinking).toStrictEqual(accountLinking);
     });
     it('should not overwrite other fields of the session', async () => {
-      session.user = {
+      mockSession.user = {
         accountLinking: initialSession,
       };
-      await service.linkServices(session, accountLinking);
-      expect(session.user.accountLinking).toStrictEqual({
+      await service.linkServices(mockSession, accountLinking);
+      expect(mockSession.user.accountLinking).toStrictEqual({
         ...initialSession,
         ...accountLinking,
       });
     });
     it('should save the session', async () => {
-      await service.linkServices(session, accountLinking);
-      expect(session.save).toHaveBeenCalled();
+      await service.linkServices(mockSession, accountLinking);
+      expect(mockSession.save).toHaveBeenCalled();
     });
   });
 
   describe('saveDiscordUserInSession', () => {
-    let session: IronSession;
-
-    beforeEach(() => {
-      session = {
-        destroy: jest.fn().mockResolvedValueOnce(undefined),
-        save: jest.fn().mockResolvedValueOnce(undefined),
-      };
-    });
-
     it('should save the Discord user in the session', async () => {
       service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
-      await service.saveDiscordUserInSession(session, discordUser);
-      expect(service.linkServices).toHaveBeenCalledWith(session, {
+      await service.saveDiscordUserInSession(mockSession, discordUser);
+      expect(service.linkServices).toHaveBeenCalledWith(mockSession, {
         discord: {
           id: discordUser.id,
           name: `${discordUser.username}#${discordUser.discriminator}`,
@@ -312,19 +303,10 @@ describe('AuthService', () => {
   });
 
   describe('saveFtUserInSession', () => {
-    let session: IronSession;
-
-    beforeEach(() => {
-      session = {
-        destroy: jest.fn().mockResolvedValueOnce(undefined),
-        save: jest.fn().mockResolvedValueOnce(undefined),
-      };
-    });
-
     it('should save the 42 user in the session', async () => {
       service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
-      await service.saveFtUserInSession(session, ftUser);
-      expect(service.linkServices).toHaveBeenCalledWith(session, {
+      await service.saveFtUserInSession(mockSession, ftUser);
+      expect(service.linkServices).toHaveBeenCalledWith(mockSession, {
         ft: {
           id: ftUser.id,
           name: ftUser.login,
@@ -335,35 +317,26 @@ describe('AuthService', () => {
   });
 
   describe('unlinkService', () => {
-    let session: IronSession;
-
-    beforeEach(() => {
-      session = {
-        destroy: jest.fn().mockResolvedValueOnce(undefined),
-        save: jest.fn().mockResolvedValueOnce(undefined),
-      };
-    });
-
     it('should remove the Discord user in the session', async () => {
       const mockDiscordUser = {
         id: faker.random.numeric(17),
         name: faker.internet.userName(),
         avatarUrl: faker.internet.url(),
       };
-      session.user = {
+      mockSession.user = {
         accountLinking: {
           discord: mockDiscordUser,
         },
       };
-      await service.unlinkService(session, LinkableService.DISCORD);
-      expect(session.user.accountLinking.discord).toBeUndefined();
+      await service.unlinkService(mockSession, LinkableService.DISCORD);
+      expect(mockSession.user.accountLinking.discord).toBeUndefined();
     });
     it('should not do anything if the Discord user does not exist', async () => {
-      session.user = {
+      mockSession.user = {
         accountLinking: {},
       };
-      await service.unlinkService(session, LinkableService.DISCORD);
-      expect(session.user.accountLinking.discord).toBeUndefined();
+      await service.unlinkService(mockSession, LinkableService.DISCORD);
+      expect(mockSession.user.accountLinking.discord).toBeUndefined();
     });
     it('should not overwrite other fields of the session', async () => {
       const mockDiscordUser = {
@@ -376,22 +349,22 @@ describe('AuthService', () => {
         name: faker.internet.userName(),
         avatarUrl: faker.internet.url(),
       };
-      session.user = {
+      mockSession.user = {
         accountLinking: {
           discord: mockDiscordUser,
           ft: mockFtUser,
         },
       };
-      await service.unlinkService(session, LinkableService.DISCORD);
-      expect(session.user.accountLinking.discord).toBeUndefined();
-      expect(session.user.accountLinking.ft).toStrictEqual(mockFtUser);
+      await service.unlinkService(mockSession, LinkableService.DISCORD);
+      expect(mockSession.user.accountLinking.discord).toBeUndefined();
+      expect(mockSession.user.accountLinking.ft).toStrictEqual(mockFtUser);
     });
     it('should save the session', async () => {
-      session.user = {
+      mockSession.user = {
         accountLinking: {},
       };
-      await service.unlinkService(session, LinkableService.DISCORD);
-      expect(session.save).toHaveBeenCalled();
+      await service.unlinkService(mockSession, LinkableService.DISCORD);
+      expect(mockSession.save).toHaveBeenCalled();
     });
   });
 });
