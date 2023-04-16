@@ -1,5 +1,5 @@
 import { LinkableService } from '@alekol/shared/enums';
-import { AccountLinkingData } from '@alekol/shared/interfaces';
+import { AccountLinkingData, User } from '@alekol/shared/interfaces';
 import AccountLinking from '../account-linking/account-linking';
 import DiscordOauth2Button from '../discord-oauth2-button/discord-oauth2-button';
 import FtOauth2Button from '../ft-oauth2-button/ft-oauth2-button';
@@ -16,9 +16,14 @@ export interface AuthFormProps {
     [key in LinkableService]: ServiceConfig;
   };
   loadingService?: LinkableService;
+  unlinkService: (service: LinkableService) => () => User;
 }
 
-export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
+export function AuthForm({
+  servicesConfig,
+  unlinkService,
+  loadingService,
+}: AuthFormProps) {
   const services = [
     {
       id: LinkableService.Discord,
@@ -63,6 +68,7 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
             name={service.name}
             id={service.id}
             linkingComponent={service.linkingComponent(disabled)}
+            unlinkService={unlinkService}
             user={service.user}
             loading={loading}
             disabled={disabled}

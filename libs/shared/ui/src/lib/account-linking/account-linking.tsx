@@ -1,16 +1,18 @@
 import { Button } from '../button/button';
-import { AccountLinkingData } from '@alekol/shared/interfaces';
+import { AccountLinkingData, User } from '@alekol/shared/interfaces';
 import LoadingAvatar from '../loading-avatar/loading-avatar';
 import LoadingParagraph from '../loading-paragraph/loading-paragraph';
 import styles from './account-linking.module.scss';
 import { ReactElement, useState } from 'react';
+import { LinkableService } from '@alekol/shared/enums';
 
 export interface AccountLinkingProps {
   disabled?: boolean;
-  id: string;
+  id: LinkableService;
   linkingComponent: ReactElement;
   loading?: boolean;
   name: string;
+  unlinkService: (service: LinkableService) => () => User;
   user?: AccountLinkingData;
 }
 
@@ -20,11 +22,13 @@ export function AccountLinking({
   linkingComponent,
   loading = false,
   name,
+  unlinkService,
   user,
 }: AccountLinkingProps) {
   const [displayedUser, setDisplayedUser] = useState(user);
   const unlinkAccountOnClick = () => () => {
     setDisplayedUser(undefined);
+    const rollbackUnlink = unlinkService(id);
     fetch(`/api/auth/oauth2/${id}/unlink`, {
       method: 'POST',
     })
@@ -40,6 +44,7 @@ export function AccountLinking({
       })
       .catch(() => {
         setDisplayedUser(user);
+        rollbackUnlink();
       });
   };
 
