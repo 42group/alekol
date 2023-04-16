@@ -1,10 +1,9 @@
+import { LinkableService } from '@alekol/shared/enums';
 import { AccountLinkingData } from '@alekol/shared/interfaces';
 import AccountLinking from '../account-linking/account-linking';
 import DiscordOauth2Button from '../discord-oauth2-button/discord-oauth2-button';
 import FtOauth2Button from '../ft-oauth2-button/ft-oauth2-button';
 import styles from './auth-form.module.scss';
-
-export type AuthServices = 'Discord' | '42';
 
 export interface ServiceConfig {
   clientId: string;
@@ -14,22 +13,21 @@ export interface ServiceConfig {
 
 export interface AuthFormProps {
   servicesConfig: {
-    discord: ServiceConfig;
-    ft: ServiceConfig;
+    [key in LinkableService]: ServiceConfig;
   };
-  loadingService?: string;
+  loadingService?: LinkableService;
 }
 
 export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
   const services = [
     {
-      id: 'discord',
+      id: LinkableService.Discord,
       name: 'Discord',
-      ...servicesConfig.discord,
+      ...servicesConfig[LinkableService.Discord],
       linkingComponent: (disabled?: boolean) => (
         <DiscordOauth2Button
-          clientId={servicesConfig.discord.clientId}
-          redirectUri={servicesConfig.discord.redirectUri}
+          clientId={servicesConfig[LinkableService.Discord].clientId}
+          redirectUri={servicesConfig[LinkableService.Discord].redirectUri}
           color="primary"
           disabled={disabled}
         >
@@ -38,13 +36,13 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
       ),
     },
     {
-      id: '42',
+      id: LinkableService.Ft,
       name: '42',
-      ...servicesConfig.ft,
+      ...servicesConfig[LinkableService.Ft],
       linkingComponent: (disabled?: boolean) => (
         <FtOauth2Button
-          clientId={servicesConfig.ft.clientId}
-          redirectUri={servicesConfig.ft.redirectUri}
+          clientId={servicesConfig[LinkableService.Ft].clientId}
+          redirectUri={servicesConfig[LinkableService.Ft].redirectUri}
           color="primary"
           disabled={disabled}
         >
@@ -57,8 +55,8 @@ export function AuthForm({ servicesConfig, loadingService }: AuthFormProps) {
   return (
     <div data-testid="auth-form" className={styles.container}>
       {services.map((service) => {
-        const loading = service.name === loadingService;
-        const disabled = !!loadingService && service.name !== loadingService;
+        const loading = service.id === loadingService;
+        const disabled = !!loadingService && service.id !== loadingService;
 
         return (
           <AccountLinking

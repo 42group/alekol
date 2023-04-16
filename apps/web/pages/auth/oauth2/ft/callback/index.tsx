@@ -4,6 +4,7 @@ import { AuthForm } from '@alekol/shared/ui';
 import { ironSessionWrapper } from '@alekol/shared/utils';
 import { useFtCodeExchange } from '@alekol/shared/hooks';
 import config from '../../../../../lib/config';
+import { LinkableService } from '@alekol/shared/enums';
 
 export const getServerSideProps = withIronSessionSsr(
   ironSessionWrapper(
@@ -19,21 +20,26 @@ export interface DiscordOauth2CallbackProps {
 
 export function Callback({ user }: DiscordOauth2CallbackProps) {
   const servicesConfig = {
-    discord: {
-      clientId: config.discord.clientId,
-      redirectUri: config.discord.redirectUri,
-      user: user.accountLinking.discord,
+    [LinkableService.Discord]: {
+      clientId: config[LinkableService.Discord].clientId,
+      redirectUri: config[LinkableService.Discord].redirectUri,
+      user: user.accountLinking[LinkableService.Discord],
     },
-    ft: {
-      clientId: config.ft.clientId,
-      redirectUri: config.ft.redirectUri,
-      user: user.accountLinking.ft,
+    [LinkableService.Ft]: {
+      clientId: config[LinkableService.Ft].clientId,
+      redirectUri: config[LinkableService.Ft].redirectUri,
+      user: user.accountLinking[LinkableService.Ft],
     },
   };
 
   useFtCodeExchange();
 
-  return <AuthForm servicesConfig={servicesConfig} loadingService="42" />;
+  return (
+    <AuthForm
+      servicesConfig={servicesConfig}
+      loadingService={LinkableService.Ft}
+    />
+  );
 }
 
 export default Callback;

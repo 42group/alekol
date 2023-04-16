@@ -1,7 +1,8 @@
 import router from 'next/router';
 import { useEffect } from 'react';
+import { LinkableService } from '@alekol/shared/enums';
 
-export const useCodeExchange = (service: string) => {
+export const useCodeExchange = (service: LinkableService) => {
   useEffect(() => {
     const storageState = sessionStorage.getItem('state');
     if (
@@ -43,9 +44,9 @@ export const useCodeExchange = (service: string) => {
 };
 
 export const useFtCodeExchange = () => {
-  return useCodeExchange('42');
+  return useCodeExchange(LinkableService.Ft);
 };
 
 export const useDiscordCodeExchange = () => {
-  return useCodeExchange('discord');
+  return useCodeExchange(LinkableService.Discord);
 };

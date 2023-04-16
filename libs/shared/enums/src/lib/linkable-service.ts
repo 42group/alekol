@@ -1,4 +1,4 @@
 export enum LinkableService {
-  DISCORD = 'discord',
-  FT = 'ft',
+  Discord = 'discord',
+  Ft = 'ft',
 }

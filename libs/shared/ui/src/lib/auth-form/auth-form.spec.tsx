@@ -1,3 +1,4 @@
+import { LinkableService } from '@alekol/shared/enums';
 import { faker } from '@faker-js/faker';
 import { render, screen } from '@testing-library/react';
 import { AccountLinkingProps } from '../account-linking/account-linking';
@@ -32,7 +33,12 @@ describe('AuthForm', () => {
 
   it('should render successfully', () => {
     render(
-      <AuthForm servicesConfig={{ discord: discordConfig, ft: ftConfig }} />
+      <AuthForm
+        servicesConfig={{
+          [LinkableService.Discord]: discordConfig,
+          [LinkableService.Ft]: ftConfig,
+        }}
+      />
     );
     const baseElement = screen.getByTestId('auth-form');
     expect(baseElement).toBeInTheDocument();
@@ -42,8 +48,11 @@ describe('AuthForm', () => {
     it('should display a loading animation and disable other forms', () => {
       render(
         <AuthForm
-          servicesConfig={{ discord: discordConfig, ft: ftConfig }}
-          loadingService="Discord"
+          servicesConfig={{
+            [LinkableService.Discord]: discordConfig,
+            [LinkableService.Ft]: ftConfig,
+          }}
+          loadingService={LinkableService.Discord}
         />
       );
       const baseElement = screen.getByTestId('auth-form');
@@ -55,8 +64,11 @@ describe('AuthForm', () => {
     it('should disable 42 account linking', () => {
       render(
         <AuthForm
-          servicesConfig={{ discord: discordConfig, ft: ftConfig }}
-          loadingService="Discord"
+          servicesConfig={{
+            [LinkableService.Discord]: discordConfig,
+            [LinkableService.Ft]: ftConfig,
+          }}
+          loadingService={LinkableService.Discord}
         />
       );
       const baseElement = screen.getByTestId('auth-form');

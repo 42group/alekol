@@ -20,7 +20,7 @@ import { AuthService } from './auth.service';
 const accessToken = faker.random.numeric(17);
 const code = faker.random.numeric(17);
 const config = () => ({
-  discord: {
+  [LinkableService.Discord]: {
     api: {
       baseUrl: faker.internet.url(),
       clientId: faker.random.numeric(17),
@@ -28,7 +28,7 @@ const config = () => ({
       redirectUri: faker.internet.url(),
     },
   },
-  ft: {
+  [LinkableService.Ft]: {
     api: {
       baseUrl: faker.internet.url(),
       clientId: faker.random.numeric(17),
@@ -108,13 +108,21 @@ describe('AuthService', () => {
     it('should exchange the code', async () => {
       await service.exchangeDiscordCode(code);
       expect(httpService.post).toHaveBeenCalledWith(
-        `${configService.get('discord.api.baseUrl')}/oauth2/token`,
+        `${configService.get(
+          `${LinkableService.Discord}.api.baseUrl`
+        )}/oauth2/token`,
         new URLSearchParams({
-          client_id: configService.get('discord.api.clientId'),
-          client_secret: configService.get('discord.api.clientSecret'),
+          client_id: configService.get(
+            `${LinkableService.Discord}.api.clientId`
+          ),
+          client_secret: configService.get(
+            `${LinkableService.Discord}.api.clientSecret`
+          ),
           grant_type: 'authorization_code',
           code,
-          redirect_uri: configService.get('discord.api.redirectUri'),
+          redirect_uri: configService.get(
+            `${LinkableService.Discord}.api.redirectUri`
+          ),
         })
       );
     });
@@ -162,7 +170,9 @@ describe('AuthService', () => {
     it('should fetch the user', async () => {
       await service.exchangeDiscordCodeWithUser(code);
       expect(httpService.get).toHaveBeenCalledWith(
-        `${configService.get('discord.api.baseUrl')}/users/@me`,
+        `${configService.get(
+          `${LinkableService.Discord}.api.baseUrl`
+        )}/users/@me`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -188,13 +198,17 @@ describe('AuthService', () => {
     it('should exchange the code', async () => {
       await service.exchangeFtCode(code);
       expect(httpService.post).toHaveBeenCalledWith(
-        `${configService.get('ft.api.baseUrl')}/oauth/token`,
+        `${configService.get(`${LinkableService.Ft}.api.baseUrl`)}/oauth/token`,
         new URLSearchParams({
-          client_id: configService.get('ft.api.clientId'),
-          client_secret: configService.get('ft.api.clientSecret'),
+          client_id: configService.get(`${LinkableService.Ft}.api.clientId`),
+          client_secret: configService.get(
+            `${LinkableService.Ft}.api.clientSecret`
+          ),
           grant_type: 'authorization_code',
           code,
-          redirect_uri: configService.get('ft.api.redirectUri'),
+          redirect_uri: configService.get(
+            `${LinkableService.Ft}.api.redirectUri`
+          ),
         })
       );
     });
@@ -240,7 +254,7 @@ describe('AuthService', () => {
     it('should fetch the user', async () => {
       await service.exchangeFtCodeWithUser(code);
       expect(httpService.get).toHaveBeenCalledWith(
-        `${configService.get('ft.api.baseUrl')}/me`,
+        `${configService.get(`${LinkableService.Ft}.api.baseUrl`)}/me`,
         {
           headers: {
             Authorization: `Bearer ${accessToken}`,
@@ -256,15 +270,18 @@ describe('AuthService', () => {
 
   describe.each([
     {
-      accountLinking: { discord: linkedDiscord },
-      initialSession: { ft: linkedFt },
+      accountLinking: { [LinkableService.Discord]: linkedDiscord },
+      initialSession: { [LinkableService.Ft]: linkedFt },
     },
     {
-      accountLinking: { ft: linkedFt },
-      initialSession: { discord: linkedDiscord },
+      accountLinking: { [LinkableService.Ft]: linkedFt },
+      initialSession: { [LinkableService.Discord]: linkedDiscord },
     },
     {
-      accountLinking: { discord: linkedDiscord, ft: linkedFt },
+      accountLinking: {
+        [LinkableService.Discord]: linkedDiscord,
+        [LinkableService.Ft]: linkedFt,
+      },
       initialSession: {},
     },
   ])('linkServices', ({ accountLinking, initialSession }) => {
@@ -293,7 +310,7 @@ describe('AuthService', () => {
       service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
       await service.saveDiscordUserInSession(mockSession, discordUser);
       expect(service.linkServices).toHaveBeenCalledWith(mockSession, {
-        discord: {
+        [LinkableService.Discord]: {
           id: discordUser.id,
           name: `${discordUser.username}#${discordUser.discriminator}`,
           avatarUrl: generateDiscordUserAvatarUrl(discordUser),
@@ -307,7 +324,7 @@ describe('AuthService', () => {
       service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
       await service.saveFtUserInSession(mockSession, ftUser);
       expect(service.linkServices).toHaveBeenCalledWith(mockSession, {
-        ft: {
+        [LinkableService.Ft]: {
           id: ftUser.id,
           name: ftUser.login,
           avatarUrl: ftUser.image.link,
@@ -325,18 +342,22 @@ describe('AuthService', () => {
       };
       mockSession.user = {
         accountLinking: {
-          discord: mockDiscordUser,
+          [LinkableService.Discord]: mockDiscordUser,
         },
       };
-      await service.unlinkService(mockSession, LinkableService.DISCORD);
-      expect(mockSession.user.accountLinking.discord).toBeUndefined();
+      await service.unlinkService(mockSession, LinkableService.Discord);
+      expect(
+        mockSession.user.accountLinking[LinkableService.Discord]
+      ).toBeUndefined();
     });
     it('should not do anything if the Discord user does not exist', async () => {
       mockSession.user = {
         accountLinking: {},
       };
-      await service.unlinkService(mockSession, LinkableService.DISCORD);
-      expect(mockSession.user.accountLinking.discord).toBeUndefined();
+      await service.unlinkService(mockSession, LinkableService.Discord);
+      expect(
+        mockSession.user.accountLinking[LinkableService.Discord]
+      ).toBeUndefined();
     });
     it('should not overwrite other fields of the session', async () => {
       const mockDiscordUser = {
@@ -351,19 +372,23 @@ describe('AuthService', () => {
       };
       mockSession.user = {
         accountLinking: {
-          discord: mockDiscordUser,
-          ft: mockFtUser,
+          [LinkableService.Discord]: mockDiscordUser,
+          [LinkableService.Ft]: mockFtUser,
         },
       };
-      await service.unlinkService(mockSession, LinkableService.DISCORD);
-      expect(mockSession.user.accountLinking.discord).toBeUndefined();
-      expect(mockSession.user.accountLinking.ft).toStrictEqual(mockFtUser);
+      await service.unlinkService(mockSession, LinkableService.Discord);
+      expect(
+        mockSession.user.accountLinking[LinkableService.Discord]
+      ).toBeUndefined();
+      expect(mockSession.user.accountLinking[LinkableService.Ft]).toStrictEqual(
+        mockFtUser
+      );
     });
     it('should save the session', async () => {
       mockSession.user = {
         accountLinking: {},
       };
-      await service.unlinkService(mockSession, LinkableService.DISCORD);
+      await service.unlinkService(mockSession, LinkableService.Discord);
       expect(mockSession.save).toHaveBeenCalled();
     });
   });
