@@ -1,3 +1,4 @@
+import { LinkableService } from '@alekol/shared/enums';
 import { AccountLinkingData, User } from '@alekol/shared/interfaces';
 import { faker } from '@faker-js/faker';
 import { IncomingMessage } from 'http';
@@ -17,8 +18,8 @@ const generateAccountLinking = (): AccountLinkingData => {
 
 const user: User = {
   accountLinking: {
-    discord: generateAccountLinking(),
-    ft: generateAccountLinking(),
+    [LinkableService.Discord]: generateAccountLinking(),
+    [LinkableService.Ft]: generateAccountLinking(),
   },
 };
 

@@ -1,6 +1,7 @@
 import React from 'react';
 import { render } from '@testing-library/react';
 import { faker } from '@faker-js/faker';
+import { LinkableService } from '@alekol/shared/enums';
 
 import Auth from '../../pages/auth/index';
 import { AccountLinkingData } from '@alekol/shared/interfaces';
@@ -18,11 +19,11 @@ jest.mock('@alekol/shared/ui', () => {
   };
 });
 
-config.discord = {
+config[LinkableService.Discord] = {
   clientId: faker.random.numeric(17),
   redirectUri: faker.internet.url(),
 };
-config.ft = {
+config[LinkableService.Ft] = {
   clientId: faker.random.numeric(17),
   redirectUri: faker.internet.url(),
 };
@@ -54,21 +55,24 @@ describe('Auth', () => {
       render(
         <Auth
           user={{
-            accountLinking: { discord: mockDiscordUser, ft: mockFtUser },
+            accountLinking: {
+              [LinkableService.Discord]: mockDiscordUser,
+              [LinkableService.Ft]: mockFtUser,
+            },
           }}
         />
       );
       expect(AuthForm).toHaveBeenCalledWith(
         expect.objectContaining({
           servicesConfig: {
-            discord: {
-              clientId: config.discord.clientId,
-              redirectUri: config.discord.redirectUri,
+            [LinkableService.Discord]: {
+              clientId: config[LinkableService.Discord].clientId,
+              redirectUri: config[LinkableService.Discord].redirectUri,
               user: mockDiscordUser,
             },
-            ft: {
-              clientId: config.ft.clientId,
-              redirectUri: config.ft.redirectUri,
+            [LinkableService.Ft]: {
+              clientId: config[LinkableService.Ft].clientId,
+              redirectUri: config[LinkableService.Ft].redirectUri,
               user: mockFtUser,
             },
           },

@@ -1,18 +1,20 @@
+import { LinkableService } from '@alekol/shared/enums';
+
 export default () => ({
-  discord: {
+  [LinkableService.Discord]: {
     api: {
       baseUrl: 'https://discord.com/api/v10',
       clientId: process.env.DISCORD_API_CLIENT_ID,
       clientSecret: process.env.DISCORD_API_CLIENT_SECRET,
-      redirectUri: `${process.env.FRONTEND_BASE_URL}/auth/oauth2/discord/callback`,
+      redirectUri: `${process.env.FRONTEND_BASE_URL}/auth/oauth2/${LinkableService.Discord}/callback`,
     },
   },
-  ft: {
+  [LinkableService.Ft]: {
     api: {
       baseUrl: 'https://api.intra.42.fr/v2',
       clientId: process.env.FT_API_CLIENT_ID,
       clientSecret: process.env.FT_API_CLIENT_SECRET,
-      redirectUri: `${process.env.FRONTEND_BASE_URL}/auth/oauth2/42/callback`,
+      redirectUri: `${process.env.FRONTEND_BASE_URL}/auth/oauth2/${LinkableService.Ft}/callback`,
     },
   },
   ironSession: {

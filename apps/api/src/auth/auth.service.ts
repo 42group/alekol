@@ -26,19 +26,29 @@ export class AuthService {
     private configService: ConfigService,
     private httpService: HttpService
   ) {
-    this.discordApiBaseUrl = this.configService.get('discord.api.baseUrl');
-    this.ftApiBaseUrl = this.configService.get('ft.api.baseUrl');
+    this.discordApiBaseUrl = this.configService.get(
+      `${LinkableService.Discord}.api.baseUrl`
+    );
+    this.ftApiBaseUrl = this.configService.get(
+      `${LinkableService.Ft}.api.baseUrl`
+    );
   }
 
   async exchangeDiscordCode(
     code: string
   ): Promise<DiscordAuthorizationCodeExchangeResponse> {
     const body = new URLSearchParams({
-      client_id: this.configService.get('discord.api.clientId'),
-      client_secret: this.configService.get('discord.api.clientSecret'),
+      client_id: this.configService.get(
+        `${LinkableService.Discord}.api.clientId`
+      ),
+      client_secret: this.configService.get(
+        `${LinkableService.Discord}.api.clientSecret`
+      ),
       grant_type: 'authorization_code',
       code,
-      redirect_uri: this.configService.get('discord.api.redirectUri'),
+      redirect_uri: this.configService.get(
+        `${LinkableService.Discord}.api.redirectUri`
+      ),
     });
     const { data } = await firstValueFrom(
       this.httpService
@@ -81,11 +91,15 @@ export class AuthService {
     code: string
   ): Promise<FtAuthorizationCodeExchangeResponse> {
     const body = new URLSearchParams({
-      client_id: this.configService.get('ft.api.clientId'),
-      client_secret: this.configService.get('ft.api.clientSecret'),
+      client_id: this.configService.get(`${LinkableService.Ft}.api.clientId`),
+      client_secret: this.configService.get(
+        `${LinkableService.Ft}.api.clientSecret`
+      ),
       grant_type: 'authorization_code',
       code,
-      redirect_uri: this.configService.get('ft.api.redirectUri'),
+      redirect_uri: this.configService.get(
+        `${LinkableService.Ft}.api.redirectUri`
+      ),
     });
     const { data } = await firstValueFrom(
       this.httpService
@@ -143,7 +157,7 @@ export class AuthService {
     discordUser: DiscordUser
   ) {
     return this.linkServices(session, {
-      discord: {
+      [LinkableService.Discord]: {
         id: discordUser.id,
         name: `${discordUser.username}#${discordUser.discriminator}`,
         avatarUrl: generateDiscordUserAvatarUrl(discordUser),
@@ -153,7 +167,7 @@ export class AuthService {
 
   async saveFtUserInSession(session: IronSession, ftUser: FtUser) {
     return this.linkServices(session, {
-      ft: {
+      [LinkableService.Ft]: {
         id: ftUser.id,
         name: ftUser.login,
         avatarUrl: ftUser.image.link,
@@ -167,10 +181,10 @@ export class AuthService {
   }
 
   async unlinkDiscord(session: IronSession) {
-    await this.unlinkService(session, LinkableService.DISCORD);
+    await this.unlinkService(session, LinkableService.Discord);
   }
 
   async unlinkFt(session: IronSession) {
-    await this.unlinkService(session, LinkableService.FT);
+    await this.unlinkService(session, LinkableService.Ft);
   }
 }

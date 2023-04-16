@@ -8,6 +8,7 @@ import {
   Session,
 } from '@nestjs/common';
 import { DiscordCodeExchangeDto, FtCodeExchangeDto } from '@alekol/shared/dtos';
+import { LinkableService } from '@alekol/shared/enums';
 import { IronSession } from 'iron-session';
 import { AuthService } from './auth.service';
 
@@ -15,7 +16,7 @@ import { AuthService } from './auth.service';
 export class AuthController {
   constructor(private authService: AuthService) {}
 
-  @Post('oauth2/discord/code')
+  @Post(`oauth2/${LinkableService.Discord}/code`)
   async exchangeDiscordCode(
     @Body() discordCodeExchangeDto: DiscordCodeExchangeDto,
     @Session() session: IronSession
@@ -24,10 +25,10 @@ export class AuthController {
       discordCodeExchangeDto.code
     );
     await this.authService.saveDiscordUserInSession(session, discordUser);
-    return session.user.accountLinking.discord;
+    return session.user.accountLinking[LinkableService.Discord];
   }
 
-  @Post('oauth2/42/code')
+  @Post(`oauth2/${LinkableService.Ft}/code`)
   async exchangeFtCode(
     @Body() ftCodeExchangeDto: FtCodeExchangeDto,
     @Session() session: IronSession
@@ -36,17 +37,17 @@ export class AuthController {
       ftCodeExchangeDto.code
     );
     await this.authService.saveFtUserInSession(session, ftUser);
-    return session.user.accountLinking.ft;
+    return session.user.accountLinking[LinkableService.Ft];
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Post('oauth2/discord/unlink')
+  @Post(`oauth2/${LinkableService.Discord}/unlink`)
   async unlinkDiscord(@Session() session: IronSession) {
     await this.authService.unlinkDiscord(session);
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
-  @Post('oauth2/42/unlink')
+  @Post(`oauth2/${LinkableService.Ft}/unlink`)
   async unlinkFt(@Session() session: IronSession) {
     await this.authService.unlinkFt(session);
   }

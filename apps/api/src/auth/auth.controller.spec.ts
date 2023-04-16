@@ -7,6 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DiscordUser, FtUser } from '@alekol/shared/interfaces';
 import { DiscordCodeExchangeDto } from '@alekol/shared/dtos';
+import { LinkableService } from '@alekol/shared/enums';
 
 const discordCodeExchangeDto: DiscordCodeExchangeDto = {
   code: faker.random.numeric(17),
@@ -73,7 +74,7 @@ describe('AuthController', () => {
         async (session, discordUser) => {
           session.user = {
             accountLinking: {
-              discord: {
+              [LinkableService.Discord]: {
                 id: discordUser.id,
                 name: `${discordUser.username}#${discordUser.discriminator}`,
                 avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}`,
@@ -124,7 +125,7 @@ describe('AuthController', () => {
         async (session, ftUser) => {
           session.user = {
             accountLinking: {
-              ft: {
+              [LinkableService.Ft]: {
                 id: ftUser.id,
                 name: `${ftUser.login}`,
                 avatarUrl: `${ftUser.image.link}`,
