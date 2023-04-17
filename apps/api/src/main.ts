@@ -19,8 +19,8 @@ async function bootstrap() {
 
   app.use(
     ironSession({
-      cookieName: configService.get('ironSession.cookieName'),
-      password: configService.get('ironSession.password'),
+      cookieName: `${configService.get('ironSession.cookieName')}`,
+      password: `${configService.get('ironSession.password')}`,
       cookieOptions: {
         secure: process.env.NODE_ENV === 'production',
         httpOnly: true,

@@ -26,29 +26,29 @@ export class AuthService {
     private configService: ConfigService,
     private httpService: HttpService
   ) {
-    this.discordApiBaseUrl = this.configService.get(
+    this.discordApiBaseUrl = `${this.configService.get(
       `${LinkableService.Discord}.api.baseUrl`
-    );
-    this.ftApiBaseUrl = this.configService.get(
+    )}`;
+    this.ftApiBaseUrl = `${this.configService.get(
       `${LinkableService.Ft}.api.baseUrl`
-    );
+    )}`;
   }
 
   async exchangeDiscordCode(
     code: string
   ): Promise<DiscordAuthorizationCodeExchangeResponse> {
     const body = new URLSearchParams({
-      client_id: this.configService.get(
+      client_id: `${this.configService.get(
         `${LinkableService.Discord}.api.clientId`
-      ),
-      client_secret: this.configService.get(
+      )}`,
+      client_secret: `${this.configService.get(
         `${LinkableService.Discord}.api.clientSecret`
-      ),
+      )}`,
       grant_type: 'authorization_code',
       code,
-      redirect_uri: this.configService.get(
+      redirect_uri: `${this.configService.get(
         `${LinkableService.Discord}.api.redirectUri`
-      ),
+      )}`,
     });
     const { data } = await firstValueFrom(
       this.httpService
@@ -91,15 +91,17 @@ export class AuthService {
     code: string
   ): Promise<FtAuthorizationCodeExchangeResponse> {
     const body = new URLSearchParams({
-      client_id: this.configService.get(`${LinkableService.Ft}.api.clientId`),
-      client_secret: this.configService.get(
+      client_id: `${this.configService.get(
+        `${LinkableService.Ft}.api.clientId`
+      )}`,
+      client_secret: `${this.configService.get(
         `${LinkableService.Ft}.api.clientSecret`
-      ),
+      )}`,
       grant_type: 'authorization_code',
       code,
-      redirect_uri: this.configService.get(
+      redirect_uri: `${this.configService.get(
         `${LinkableService.Ft}.api.redirectUri`
-      ),
+      )}`,
     });
     const { data } = await firstValueFrom(
       this.httpService
@@ -176,7 +178,7 @@ export class AuthService {
   }
 
   async unlinkService(session: IronSession, service: LinkableService) {
-    delete session.user.accountLinking[service];
+    delete session.user?.accountLinking[service];
     await session.save();
   }
 

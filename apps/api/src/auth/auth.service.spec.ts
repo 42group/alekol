@@ -112,17 +112,17 @@ describe('AuthService', () => {
           `${LinkableService.Discord}.api.baseUrl`
         )}/oauth2/token`,
         new URLSearchParams({
-          client_id: configService.get(
+          client_id: `${configService.get(
             `${LinkableService.Discord}.api.clientId`
-          ),
-          client_secret: configService.get(
+          )}`,
+          client_secret: `${configService.get(
             `${LinkableService.Discord}.api.clientSecret`
-          ),
+          )}`,
           grant_type: 'authorization_code',
           code,
-          redirect_uri: configService.get(
+          redirect_uri: `${configService.get(
             `${LinkableService.Discord}.api.redirectUri`
-          ),
+          )}`,
         })
       );
     });
@@ -200,15 +200,17 @@ describe('AuthService', () => {
       expect(httpService.post).toHaveBeenCalledWith(
         `${configService.get(`${LinkableService.Ft}.api.baseUrl`)}/oauth/token`,
         new URLSearchParams({
-          client_id: configService.get(`${LinkableService.Ft}.api.clientId`),
-          client_secret: configService.get(
+          client_id: `${configService.get(
+            `${LinkableService.Ft}.api.clientId`
+          )}`,
+          client_secret: `${configService.get(
             `${LinkableService.Ft}.api.clientSecret`
-          ),
+          )}`,
           grant_type: 'authorization_code',
           code,
-          redirect_uri: configService.get(
+          redirect_uri: `${configService.get(
             `${LinkableService.Ft}.api.redirectUri`
-          ),
+          )}`,
         })
       );
     });
@@ -287,7 +289,7 @@ describe('AuthService', () => {
   ])('linkServices', ({ accountLinking, initialSession }) => {
     it('should save the user in the session', async () => {
       await service.linkServices(mockSession, accountLinking);
-      expect(mockSession.user.accountLinking).toStrictEqual(accountLinking);
+      expect(mockSession.user?.accountLinking).toStrictEqual(accountLinking);
     });
     it('should not overwrite other fields of the session', async () => {
       mockSession.user = {

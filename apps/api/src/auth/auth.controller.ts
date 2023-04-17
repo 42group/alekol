@@ -25,7 +25,7 @@ export class AuthController {
       discordCodeExchangeDto.code
     );
     await this.authService.saveDiscordUserInSession(session, discordUser);
-    return session.user.accountLinking[LinkableService.Discord];
+    return session.user?.accountLinking[LinkableService.Discord];
   }
 
   @Post(`oauth2/${LinkableService.Ft}/code`)
@@ -37,7 +37,7 @@ export class AuthController {
       ftCodeExchangeDto.code
     );
     await this.authService.saveFtUserInSession(session, ftUser);
-    return session.user.accountLinking[LinkableService.Ft];
+    return session.user?.accountLinking[LinkableService.Ft];
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)
