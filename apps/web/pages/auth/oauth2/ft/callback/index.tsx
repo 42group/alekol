@@ -38,6 +38,7 @@ export function Callback({ user }: DiscordOauth2CallbackProps) {
     <AuthForm
       servicesConfig={servicesConfig}
       loadingService={LinkableService.Ft}
+      unlinkService={() => () => user}
     />
   );
 }
