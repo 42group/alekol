@@ -19,6 +19,8 @@ RUN addgroup --system api && \
           mkdir api
 
 COPY --from=builder --chown=api:api /usr/src/dist/apps/api/package*.json api/
+COPY apps/api/prisma api/
+RUN cd api && npx prisma generate
 # You can remove this install step if you build with `--bundle` option.
 # The bundled output will include external dependencies.
 RUN npm --prefix api --omit=dev -f install
