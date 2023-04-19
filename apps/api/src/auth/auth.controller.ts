@@ -51,4 +51,9 @@ export class AuthController {
   async unlinkFt(@Session() session: IronSession) {
     await this.authService.unlinkFt(session);
   }
+
+  @Post('create-account')
+  async createAccount(@Session() session: IronSession) {
+    return this.authService.createAccount(session);
+  }
 }

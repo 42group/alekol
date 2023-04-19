@@ -40,6 +40,14 @@ const linkedFt = {
   name: ftUser.login,
   avatarUrl: ftUser.image.link,
 };
+let mockSession: IronSession;
+
+beforeEach(() => {
+  mockSession = {
+    destroy: jest.fn().mockResolvedValueOnce(undefined),
+    save: jest.fn().mockResolvedValueOnce(undefined),
+  };
+});
 
 describe('AuthController', () => {
   let controller: AuthController;
@@ -163,6 +171,33 @@ describe('AuthController', () => {
     it('should remove the ft user from the session', async () => {
       await controller.unlinkFt(session);
       expect(service.unlinkFt).toHaveBeenCalledWith(session);
+    });
+  });
+
+  describe('createAccount', () => {
+    const mockCreatedUser = {
+      id: faker.datatype.uuid(),
+      discordId: linkedDiscord.id,
+      ftLogin: linkedFt.name,
+    };
+
+    beforeEach(() => {
+      mockSession.user = {
+        accountLinking: {
+          discord: linkedDiscord,
+          ft: linkedFt,
+        },
+      };
+      service.createAccount = jest.fn().mockResolvedValue(mockCreatedUser);
+    });
+
+    it("should create an account based on the user's session", async () => {
+      await controller.createAccount(mockSession);
+      expect(service.createAccount).toHaveBeenCalledWith(session);
+    });
+    it('should return the created user', async () => {
+      const result = await controller.createAccount(mockSession);
+      expect(result).toStrictEqual(mockCreatedUser);
     });
   });
 });
