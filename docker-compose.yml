@@ -30,6 +30,7 @@ services:
       FT_API_CLIENT_ID: ${FT_API_CLIENT_ID}
       FT_API_CLIENT_SECRET: ${FT_API_CLIENT_SECRET}
       SESSION_PASSWORD: ${SESSION_PASSWORD}
+      DATABASE_URL: ${DATABASE_URL}
     restart: unless-stopped
 
   web:
