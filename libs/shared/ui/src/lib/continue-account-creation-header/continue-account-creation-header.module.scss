@@ -1,0 +1,14 @@
+@import '../styles/variables.scss';
+
+.container {
+  position: absolute;
+  top: 0;
+
+  width: 100%;
+  border-bottom: 1px solid $dark-neutral-white;
+  padding: 32px 0;
+
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
