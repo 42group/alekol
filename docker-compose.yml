@@ -1,11 +1,27 @@
 version: '3.8'
 services:
+  database:
+    image: postgres:alpine
+    container_name: database
+    environment:
+      POSTGRES_USER: ${DATABASE_USERNAME}
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+      POSTGRES_DB: ${DATABASE_NAME}
+    networks:
+      - backend
+    volumes:
+      - database-data:/var/lib/postgresql/data
+    restart: unless-stopped
+
   api:
     build:
       context: .
       dockerfile: ./apps/api/Dockerfile
     container_name: api
+    depends_on:
+      - database
     networks:
+      - backend
       - proxy
     environment:
       FRONTEND_BASE_URL: ${FRONTEND_BASE_URL}
@@ -46,4 +62,8 @@ services:
     restart: unless-stopped
 
 networks:
+  backend:
   proxy:
+
+volumes:
+  database-data:
