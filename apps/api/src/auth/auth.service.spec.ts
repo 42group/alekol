@@ -5,16 +5,20 @@ import {
   DiscordUser,
   FtAuthorizationCodeExchangeResponse,
   FtUser,
+  User,
 } from '@alekol/shared/interfaces';
 import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 import { faker } from '@faker-js/faker';
 import { createMock, DeepMocked } from '@golevelup/ts-jest';
+import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 import { HttpService } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
+import { Prisma, PrismaClient } from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import { IronSession } from 'iron-session';
 import { of } from 'rxjs';
+import { PrismaService } from '../prisma.service';
 import { AuthService } from './auth.service';
 
 const accessToken = faker.random.numeric(17);
@@ -74,6 +78,7 @@ describe('AuthService', () => {
   let service: AuthService;
   let configService: DeepMocked<ConfigService>;
   let httpService: DeepMocked<HttpService>;
+  let prisma: DeepMockProxy<PrismaClient>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -84,12 +89,17 @@ describe('AuthService', () => {
           provide: HttpService,
           useValue: createMock<HttpService>(),
         },
+        {
+          provide: PrismaService,
+          useValue: mockDeep<PrismaClient>(),
+        },
       ],
     }).compile();
 
     service = module.get<AuthService>(AuthService);
     configService = module.get(ConfigService);
     httpService = module.get(HttpService);
+    prisma = module.get(PrismaService);
   });
 
   it('should be defined', () => {
@@ -392,6 +402,246 @@ describe('AuthService', () => {
       };
       await service.unlinkService(mockSession, LinkableService.Discord);
       expect(mockSession.save).toHaveBeenCalled();
+    });
+  });
+
+  describe.each(Object.values(LinkableService))(
+    'getLinkedServiceAccount (%s)',
+    (serviceKey) => {
+      let mockUserAccountLinking: Required<User['accountLinking']>;
+      const mockFindUniqueUserResult = {
+        id: faker.datatype.uuid(),
+        discordId: linkedDiscord.id,
+        ftLogin: linkedFt.name,
+      };
+      let services: { [key in LinkableService]: [string, string] };
+
+      beforeEach(() => {
+        mockUserAccountLinking = {
+          discord: linkedDiscord,
+          ft: linkedFt,
+        };
+        services = {
+          [LinkableService.Discord]: [
+            'discordId',
+            mockUserAccountLinking[LinkableService.Discord].id,
+          ],
+          [LinkableService.Ft]: [
+            'ftLogin',
+            mockUserAccountLinking[LinkableService.Ft].name,
+          ],
+        };
+        prisma.user.findUnique.mockResolvedValue(null);
+      });
+
+      it('should check the database', async () => {
+        await service.getLinkedServiceAccount(
+          serviceKey,
+          mockUserAccountLinking[serviceKey]
+        );
+        const [key, value] = services[serviceKey];
+        expect(prisma.user.findUnique).toHaveBeenCalledWith({
+          where: {
+            [key]: value,
+          },
+        });
+      });
+      it('should return the user on already registered', async () => {
+        prisma.user.findUnique.mockResolvedValue(mockFindUniqueUserResult);
+        const result = await service.getLinkedServiceAccount(
+          serviceKey,
+          mockUserAccountLinking[serviceKey]
+        );
+        expect(result).toStrictEqual(mockFindUniqueUserResult);
+      });
+      it('should return null on not already registered', async () => {
+        const result = await service.getLinkedServiceAccount(
+          serviceKey,
+          mockUserAccountLinking[serviceKey]
+        );
+        expect(result).toBeNull();
+      });
+    }
+  );
+
+  describe.each(Object.values(LinkableService))(
+    'serviceIsAlreadyRegistered',
+    (serviceKey) => {
+      let mockUserAccountLinking: Required<User['accountLinking']>;
+      const mockFindUniqueUserResult = {
+        id: faker.datatype.uuid(),
+        discordId: linkedDiscord.id,
+        ftLogin: linkedFt.name,
+      };
+
+      beforeEach(() => {
+        mockUserAccountLinking = {
+          discord: linkedDiscord,
+          ft: linkedFt,
+        };
+        service.getLinkedServiceAccount = jest.fn().mockResolvedValue(null);
+      });
+
+      test('should get the registered user', async () => {
+        await service.serviceIsAlreadyRegistered(
+          serviceKey,
+          mockUserAccountLinking[serviceKey]
+        );
+        expect(service.getLinkedServiceAccount).toHaveBeenCalledWith(
+          serviceKey,
+          mockUserAccountLinking[serviceKey]
+        );
+      });
+      test('should return true on service already registered', async () => {
+        service.getLinkedServiceAccount = jest
+          .fn()
+          .mockResolvedValue(mockFindUniqueUserResult);
+        const result = await service.serviceIsAlreadyRegistered(
+          serviceKey,
+          mockUserAccountLinking[serviceKey]
+        );
+        expect(result).toBe(true);
+      });
+      test('should return false on service not already registered', async () => {
+        const result = await service.serviceIsAlreadyRegistered(
+          serviceKey,
+          mockUserAccountLinking[serviceKey]
+        );
+        expect(result).toBe(false);
+      });
+    }
+  );
+
+  describe('oneOfServicesIsAlreadyRegistered', () => {
+    let mockUserAccountLinking: User['accountLinking'];
+
+    beforeEach(() => {
+      mockUserAccountLinking = {
+        discord: linkedDiscord,
+        ft: linkedFt,
+      };
+      service.serviceIsAlreadyRegistered = jest.fn().mockResolvedValue(false);
+    });
+
+    it('should return false on no service already registered', async () => {
+      const result = await service.oneOfServicesIsAlreadyRegistered({});
+      expect(result).toBe(false);
+    });
+    it.each(Object.values(LinkableService))(
+      'should return true on %s already registered',
+      async (serviceKey) => {
+        service.serviceIsAlreadyRegistered = jest.fn(
+          async (key: LinkableService) => key === serviceKey
+        );
+        const result = await service.oneOfServicesIsAlreadyRegistered(
+          mockUserAccountLinking
+        );
+        expect(result).toBe(true);
+      }
+    );
+    it('should return true on all services already registered', async () => {
+      service.serviceIsAlreadyRegistered = jest.fn().mockResolvedValue(true);
+      const result = await service.oneOfServicesIsAlreadyRegistered(
+        mockUserAccountLinking
+      );
+      expect(result).toBe(true);
+    });
+  });
+
+  describe('allServicesAreLinked', () => {
+    let mockUserAccountLinking: User['accountLinking'];
+
+    beforeEach(() => {
+      mockUserAccountLinking = {
+        discord: linkedDiscord,
+        ft: linkedFt,
+      };
+    });
+
+    it('should return true on all services linked', () => {
+      const result = service.allServicesAreLinked(mockUserAccountLinking);
+      expect(result).toBe(true);
+    });
+    it.each(Object.values(LinkableService))(
+      'should check that %s is linked',
+      (serviceKey) => {
+        delete mockUserAccountLinking[serviceKey];
+        const result = service.allServicesAreLinked(mockUserAccountLinking);
+        expect(result).toBe(false);
+      }
+    );
+    it('should return false on no services linked', () => {
+      const result = service.allServicesAreLinked({});
+      expect(result).toBe(false);
+    });
+  });
+
+  describe('createAccount', () => {
+    const mockCreateUserResult = {
+      id: faker.datatype.uuid(),
+      discordId: linkedDiscord.id,
+      ftLogin: linkedFt.name,
+    };
+
+    beforeEach(() => {
+      mockSession.user = {
+        accountLinking: {
+          discord: linkedDiscord,
+          ft: linkedFt,
+        },
+      };
+      service.allServicesAreLinked = jest.fn().mockReturnValue(true);
+      service.oneOfServicesIsAlreadyRegistered = jest
+        .fn()
+        .mockResolvedValue(false);
+      prisma.user.create.mockResolvedValue(mockCreateUserResult);
+    });
+
+    it('should check that all services are linked', async () => {
+      await service.createAccount(mockSession);
+      expect(service.allServicesAreLinked).toHaveBeenCalledWith(
+        mockSession.user?.accountLinking
+      );
+    });
+    it('should throw if not all services are linked', async () => {
+      service.allServicesAreLinked = jest.fn().mockReturnValue(false);
+      await expect(() => service.createAccount(mockSession)).rejects.toThrow(
+        'You did not link third-party services'
+      );
+    });
+    it('should check that none of the services is already registered', async () => {
+      await service.createAccount(mockSession);
+      expect(service.oneOfServicesIsAlreadyRegistered).toHaveBeenCalledWith(
+        mockSession.user?.accountLinking
+      );
+    });
+    it('should throw if one of the services is already registered', async () => {
+      service.oneOfServicesIsAlreadyRegistered = jest
+        .fn()
+        .mockResolvedValue(true);
+      await expect(() => service.createAccount(mockSession)).rejects.toThrow(
+        'One of your services is already linked to another account'
+      );
+    });
+    it('should save the user in the database', async () => {
+      await service.createAccount(mockSession);
+      expect(prisma.user.create).toHaveBeenCalledWith(
+        expect.objectContaining<{ data: Prisma.UserCreateInput }>({
+          data: {
+            discordId: linkedDiscord.id,
+            ftLogin: linkedFt.name,
+          },
+        })
+      );
+    });
+    it("should set the session user's id", async () => {
+      await service.createAccount(mockSession);
+      expect(mockSession.user?.id).toBe(mockCreateUserResult.id);
+      expect(mockSession.save).toHaveBeenCalled();
+    });
+    it('should return the created user', async () => {
+      const result = await service.createAccount(mockSession);
+      expect(result).toStrictEqual(mockCreateUserResult);
     });
   });
 });

@@ -1,4 +1,5 @@
 import {
+  BadRequestException,
   Injectable,
   InternalServerErrorException,
   Logger,
@@ -11,11 +12,13 @@ import {
   DiscordUser,
   FtAuthorizationCodeExchangeResponse,
   FtUser,
+  User,
 } from '@alekol/shared/interfaces';
 import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 import { IronSession } from 'iron-session';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
+import { PrismaService } from '../prisma.service';
 
 @Injectable()
 export class AuthService {
@@ -24,7 +27,8 @@ export class AuthService {
 
   constructor(
     private configService: ConfigService,
-    private httpService: HttpService
+    private httpService: HttpService,
+    private prisma: PrismaService
   ) {
     this.discordApiBaseUrl = `${this.configService.get(
       `${LinkableService.Discord}.api.baseUrl`
@@ -188,5 +192,71 @@ export class AuthService {
 
   async unlinkFt(session: IronSession) {
     await this.unlinkService(session, LinkableService.Ft);
+  }
+
+  async getLinkedServiceAccount(
+    service: LinkableService,
+    accountLinkingData: AccountLinkingData
+  ) {
+    const services: { [key in LinkableService]: [string, string] } = {
+      [LinkableService.Discord]: ['discordId', accountLinkingData.id],
+      [LinkableService.Ft]: ['ftLogin', accountLinkingData.name],
+    };
+    const [key, value] = services[service];
+    return this.prisma.user.findUnique({
+      where: {
+        [key]: value,
+      },
+    });
+  }
+
+  async serviceIsAlreadyRegistered(
+    service: LinkableService,
+    accountLinkingData: AccountLinkingData
+  ) {
+    return !!(await this.getLinkedServiceAccount(service, accountLinkingData));
+  }
+
+  async oneOfServicesIsAlreadyRegistered(
+    userAccountLinking: User['accountLinking']
+  ) {
+    const promises = Object.values(LinkableService).map(async (key) => {
+      const service = userAccountLinking[key];
+      if (!service) return false;
+      return this.serviceIsAlreadyRegistered(key, service);
+    });
+    return (await Promise.all(promises)).some((promise) => promise);
+  }
+
+  allServicesAreLinked(userAccountLinking: User['accountLinking']) {
+    return Object.values(LinkableService).every(
+      (key) => !!userAccountLinking[key]
+    );
+  }
+
+  async createAccount(session: IronSession) {
+    if (
+      !session.user ||
+      !this.allServicesAreLinked(session.user.accountLinking)
+    ) {
+      throw new BadRequestException('You did not link third-party services');
+    }
+
+    if (
+      await this.oneOfServicesIsAlreadyRegistered(session.user.accountLinking)
+    )
+      throw new BadRequestException(
+        'One of your services is already linked to another account'
+      );
+
+    const user = await this.prisma.user.create({
+      data: {
+        discordId: session.user.accountLinking.discord?.id,
+        ftLogin: session.user.accountLinking.ft?.name,
+      },
+    });
+    session.user.id = user.id;
+    await session.save();
+    return user;
   }
 }
