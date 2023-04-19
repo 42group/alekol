@@ -12,6 +12,7 @@ export interface ServiceConfig {
 }
 
 export interface AuthFormProps {
+  disabled?: boolean;
   servicesConfig: {
     [key in LinkableService]: ServiceConfig;
   };
@@ -20,6 +21,7 @@ export interface AuthFormProps {
 }
 
 export function AuthForm({
+  disabled = false,
   servicesConfig,
   unlinkService,
   loadingService,
@@ -61,7 +63,8 @@ export function AuthForm({
     <div data-testid="auth-form" className={styles.container}>
       {services.map((service) => {
         const loading = service.id === loadingService;
-        const disabled = !!loadingService && service.id !== loadingService;
+        const disabledBecauseNotLoading =
+          !!loadingService && service.id !== loadingService;
 
         return (
           <AccountLinking
@@ -71,7 +74,7 @@ export function AuthForm({
             unlinkService={unlinkService}
             user={service.user}
             loading={loading}
-            disabled={disabled}
+            disabled={disabled || disabledBecauseNotLoading}
             key={service.name}
           />
         );
