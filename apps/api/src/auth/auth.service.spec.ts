@@ -626,7 +626,7 @@ describe('AuthService', () => {
     it('should save the user in the database', async () => {
       await service.createAccount(mockSession);
       expect(prisma.user.create).toHaveBeenCalledWith(
-        expect.objectContaining<{ data: Prisma.UserCreateInput }>({
+        expect.objectContaining({
           data: {
             discordId: linkedDiscord.id,
             ftLogin: linkedFt.name,
