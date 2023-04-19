@@ -9,4 +9,4 @@ services:
       DATABASE_URL: ${DATABASE_URL}
     networks:
       - backend
-    restart: no
+    restart: "no"
