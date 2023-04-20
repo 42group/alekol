@@ -13,7 +13,7 @@ import { DeepMockProxy, mockDeep } from 'jest-mock-extended';
 import { HttpService } from '@nestjs/axios';
 import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
-import { Prisma, PrismaClient } from '@prisma/client';
+import { PrismaClient } from '@prisma/client';
 import { AxiosResponse } from 'axios';
 import { IronSession } from 'iron-session';
 import { of } from 'rxjs';

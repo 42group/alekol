@@ -1,7 +1,6 @@
 import { faker } from '@faker-js/faker';
 import { act, render, screen } from '@testing-library/react';
 import fetchMock from 'jest-fetch-mock';
-import mockRouter from 'next-router-mock';
 
 import ContinueAccountCreationHeader from './continue-account-creation-header';
 

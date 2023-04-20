@@ -1,5 +1,5 @@
 import { faker } from '@faker-js/faker';
-import { act, render } from '@testing-library/react';
+import { render } from '@testing-library/react';
 import { Button } from '../button/button';
 
 import { Oauth2Button, Oauth2ButtonProps } from './oauth2-button';
