@@ -56,4 +56,10 @@ export class AuthController {
   async createAccount(@Session() session: IronSession) {
     return this.authService.createAccount(session);
   }
+
+  @HttpCode(HttpStatus.NO_CONTENT)
+  @Post('logout')
+  logout(@Session() session: IronSession) {
+    this.authService.logout(session);
+  }
 }

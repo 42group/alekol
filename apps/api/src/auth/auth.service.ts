@@ -259,4 +259,8 @@ export class AuthService {
     await session.save();
     return user;
   }
+
+  logout(session: IronSession) {
+    session.destroy();
+  }
 }

@@ -644,4 +644,11 @@ describe('AuthService', () => {
       expect(result).toStrictEqual(mockCreateUserResult);
     });
   });
+
+  describe('logout', () => {
+    it('should destroy the user session', () => {
+      service.logout(mockSession);
+      expect(mockSession.destroy).toHaveBeenCalled();
+    });
+  });
 });
