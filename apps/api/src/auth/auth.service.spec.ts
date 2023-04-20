@@ -19,6 +19,7 @@ import { AxiosResponse } from 'axios';
 import { IronSession } from 'iron-session';
 import { of } from 'rxjs';
 import { PrismaService } from '../prisma.service';
+import { User as UserModel } from '@prisma/client';
 import { AuthService } from './auth.service';
 
 const accessToken = faker.random.numeric(17);
@@ -65,6 +66,11 @@ const linkedFt: AccountLinkingData = {
   avatarUrl: ftUser.image.link,
 };
 
+const mockUser: UserModel = {
+  id: faker.datatype.uuid(),
+  discordId: linkedDiscord.id,
+  ftLogin: linkedFt.name,
+};
 let mockSession: IronSession;
 
 beforeEach(() => {
@@ -649,6 +655,35 @@ describe('AuthService', () => {
     it('should destroy the user session', () => {
       service.logout(mockSession);
       expect(mockSession.destroy).toHaveBeenCalled();
+    });
+  });
+
+  describe('login', () => {
+    it('should reset accountLinking property', async () => {
+      mockSession.user = {
+        accountLinking: {
+          discord: linkedDiscord,
+          ft: linkedFt,
+        },
+      };
+      await service.login(mockSession, mockUser);
+      expect(mockSession.user?.accountLinking).toStrictEqual({});
+    });
+    it("should add the user's id", async () => {
+      await service.login(mockSession, mockUser);
+      expect(mockSession.user?.id).toBe(mockUser.id);
+    });
+    it("should overwrite the user's id", async () => {
+      mockSession.user = {
+        id: faker.datatype.uuid(),
+        accountLinking: {},
+      };
+      await service.login(mockSession, mockUser);
+      expect(mockSession.user?.id).toBe(mockUser.id);
+    });
+    it('should save the session', async () => {
+      await service.login(mockSession, mockUser);
+      expect(mockSession.save).toHaveBeenCalled();
     });
   });
 });

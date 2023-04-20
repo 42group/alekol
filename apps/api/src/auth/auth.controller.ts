@@ -27,6 +27,17 @@ export class AuthController {
     await this.authService.saveDiscordUserInSession(session, discordUser);
 
     const sessionUser = session.user?.accountLinking[LinkableService.Discord];
+    if (sessionUser) {
+      const user = await this.authService.getLinkedServiceAccount(
+        LinkableService.Discord,
+        sessionUser
+      );
+      if (user) {
+        await this.authService.login(session, user);
+        return { status: AuthenticationStatus.Authenticated };
+      }
+    }
+
     return {
       ...sessionUser,
       status: AuthenticationStatus.Pending,
@@ -44,6 +55,17 @@ export class AuthController {
     await this.authService.saveFtUserInSession(session, ftUser);
 
     const sessionUser = session.user?.accountLinking[LinkableService.Ft];
+    if (sessionUser) {
+      const user = await this.authService.getLinkedServiceAccount(
+        LinkableService.Ft,
+        sessionUser
+      );
+      if (user) {
+        await this.authService.login(session, user);
+        return { status: AuthenticationStatus.Authenticated };
+      }
+    }
+
     return {
       ...sessionUser,
       status: AuthenticationStatus.Pending,

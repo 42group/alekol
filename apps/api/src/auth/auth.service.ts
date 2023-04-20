@@ -19,6 +19,7 @@ import { IronSession } from 'iron-session';
 import { HttpService } from '@nestjs/axios';
 import { catchError, firstValueFrom } from 'rxjs';
 import { PrismaService } from '../prisma.service';
+import { User as UserModel } from '@prisma/client';
 
 @Injectable()
 export class AuthService {
@@ -262,5 +263,14 @@ export class AuthService {
 
   logout(session: IronSession) {
     session.destroy();
+  }
+
+  async login(session: IronSession, user: UserModel) {
+    session.user = {
+      ...session.user,
+      accountLinking: {},
+      id: user.id,
+    };
+    await session.save();
   }
 }

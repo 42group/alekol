@@ -8,6 +8,7 @@ import { AuthService } from './auth.service';
 import { DiscordUser, FtUser } from '@alekol/shared/interfaces';
 import { DiscordCodeExchangeDto } from '@alekol/shared/dtos';
 import { AuthenticationStatus, LinkableService } from '@alekol/shared/enums';
+import { User } from '@prisma/client';
 
 const discordCodeExchangeDto: DiscordCodeExchangeDto = {
   code: faker.random.numeric(17),
@@ -39,6 +40,11 @@ const linkedFt = {
   id: ftUser.id,
   name: ftUser.login,
   avatarUrl: ftUser.image.link,
+};
+const mockUser: User = {
+  id: faker.datatype.uuid(),
+  discordId: linkedDiscord.id,
+  ftLogin: linkedFt.name,
 };
 let mockSession: IronSession;
 
@@ -91,6 +97,7 @@ describe('AuthController', () => {
           };
         }
       );
+      service.getLinkedServiceAccount.mockResolvedValue(null);
     });
 
     it('should exchange the code', async () => {
@@ -106,14 +113,37 @@ describe('AuthController', () => {
         discordUser
       );
     });
-    it('should return the discord user', async () => {
-      const response = await controller.exchangeDiscordCode(
-        discordCodeExchangeDto,
-        session
-      );
-      expect(response).toStrictEqual({
-        ...linkedDiscord,
-        status: AuthenticationStatus.Pending,
+
+    describe('if the user does not already have an account', () => {
+      it('should return the discord user', async () => {
+        const response = await controller.exchangeDiscordCode(
+          discordCodeExchangeDto,
+          session
+        );
+        expect(response).toStrictEqual({
+          ...linkedDiscord,
+          status: AuthenticationStatus.Pending,
+        });
+      });
+    });
+
+    describe('if the user already has an account', () => {
+      beforeEach(() => {
+        service.getLinkedServiceAccount.mockResolvedValue(mockUser);
+      });
+
+      it('should log the user in', async () => {
+        await controller.exchangeDiscordCode(discordCodeExchangeDto, session);
+        expect(service.login).toHaveBeenCalledWith(mockSession, mockUser);
+      });
+      it('should return a success authentication', async () => {
+        const response = await controller.exchangeDiscordCode(
+          discordCodeExchangeDto,
+          session
+        );
+        expect(response).toStrictEqual({
+          status: AuthenticationStatus.Authenticated,
+        });
       });
     });
   });
@@ -145,6 +175,7 @@ describe('AuthController', () => {
           };
         }
       );
+      service.getLinkedServiceAccount.mockResolvedValue(null);
     });
 
     it('should exchange the code', async () => {
@@ -157,14 +188,37 @@ describe('AuthController', () => {
       await controller.exchangeFtCode(ftCodeExchangeDto, session);
       expect(service.saveFtUserInSession).toHaveBeenCalledWith(session, ftUser);
     });
-    it('should return the ft user', async () => {
-      const response = await controller.exchangeFtCode(
-        ftCodeExchangeDto,
-        session
-      );
-      expect(response).toStrictEqual({
-        ...linkedFt,
-        status: AuthenticationStatus.Pending,
+
+    describe('if the user does not already have an account', () => {
+      it('should return the ft user', async () => {
+        const response = await controller.exchangeFtCode(
+          ftCodeExchangeDto,
+          session
+        );
+        expect(response).toStrictEqual({
+          ...linkedFt,
+          status: AuthenticationStatus.Pending,
+        });
+      });
+    });
+
+    describe('if the user already has an account', () => {
+      beforeEach(() => {
+        service.getLinkedServiceAccount.mockResolvedValue(mockUser);
+      });
+
+      it('should log the user in', async () => {
+        await controller.exchangeFtCode(ftCodeExchangeDto, session);
+        expect(service.login).toHaveBeenCalledWith(mockSession, mockUser);
+      });
+      it('should return a success authentication', async () => {
+        const response = await controller.exchangeFtCode(
+          ftCodeExchangeDto,
+          session
+        );
+        expect(response).toStrictEqual({
+          status: AuthenticationStatus.Authenticated,
+        });
       });
     });
   });
