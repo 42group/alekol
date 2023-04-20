@@ -13,7 +13,7 @@ export function LoadingAvatar({ loading, src }: LoadingAvatarProps) {
   const skeleton = useSkeleton(
     loading ? null : (
       <Image
-        alt="discord avatar"
+        alt="avatar"
         src={src}
         width="96"
         height="96"
