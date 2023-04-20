@@ -84,19 +84,13 @@ describe('AuthController', () => {
   describe('exchangeDiscordCode', () => {
     beforeEach(() => {
       service.exchangeDiscordCodeWithUser.mockResolvedValueOnce(discordUser);
-      service.saveDiscordUserInSession.mockImplementation(
-        async (session, discordUser) => {
-          session.user = {
-            accountLinking: {
-              [LinkableService.Discord]: {
-                id: discordUser.id,
-                name: `${discordUser.username}#${discordUser.discriminator}`,
-                avatarUrl: `https://cdn.discordapp.com/avatars/${discordUser.id}/${discordUser.avatar}`,
-              },
-            },
-          };
-        }
-      );
+      service.saveDiscordUserInSession.mockImplementation(async (session) => {
+        session.user = {
+          accountLinking: {
+            [LinkableService.Discord]: linkedDiscord,
+          },
+        };
+      });
       service.getLinkedServiceAccount.mockResolvedValue(null);
     });
 
@@ -162,19 +156,13 @@ describe('AuthController', () => {
   describe('exchangeFtCode', () => {
     beforeEach(() => {
       service.exchangeFtCodeWithUser.mockResolvedValueOnce(ftUser);
-      service.saveFtUserInSession.mockImplementation(
-        async (session, ftUser) => {
-          session.user = {
-            accountLinking: {
-              [LinkableService.Ft]: {
-                id: ftUser.id,
-                name: `${ftUser.login}`,
-                avatarUrl: `${ftUser.image.link}`,
-              },
-            },
-          };
-        }
-      );
+      service.saveFtUserInSession.mockImplementation(async (session) => {
+        session.user = {
+          accountLinking: {
+            [LinkableService.Ft]: linkedFt,
+          },
+        };
+      });
       service.getLinkedServiceAccount.mockResolvedValue(null);
     });
 
