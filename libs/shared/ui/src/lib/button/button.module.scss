@@ -26,6 +26,12 @@
 
   cursor: pointer;
 
+  transition: all 0.2s ease-out;
+
+  &:hover {
+    filter: brightness(110%);
+  }
+
   &.small {
     height: 32px;
   }
@@ -37,6 +43,10 @@
   &.primary {
     background: $dark-primary-purple;
     color: $dark-neutral-white;
+
+    &:hover {
+      box-shadow: 0px 4px 14px $dark-primary-purple-50;
+    }
 
     &:disabled {
       border: 2px solid $dark-primary-purple-50;
@@ -50,6 +60,10 @@
     background: $dark-primary-blue;
     color: $dark-neutral-white;
 
+    &:hover {
+      box-shadow: 0px 4px 14px $dark-primary-blue-50;
+    }
+
     &:disabled {
       border: 2px solid $dark-primary-blue-50;
 
@@ -61,6 +75,10 @@
   &.danger {
     background: $dark-system-danger;
     color: $dark-neutral-white;
+
+    &:hover {
+      box-shadow: 0px 4px 14px $dark-system-danger-50;
+    }
 
     &:disabled {
       border: 2px solid $dark-system-danger-50;
@@ -74,6 +92,10 @@
     background: $dark-brand-discord;
     color: $dark-neutral-white;
 
+    &:hover {
+      box-shadow: 0px 4px 14px $dark-brand-discord-50;
+    }
+
     &:disabled {
       border: 2px solid $dark-brand-discord-50;
 
@@ -85,6 +107,10 @@
   &.ft {
     background: $dark-brand-ft;
     color: $dark-neutral-white;
+
+    &:hover {
+      box-shadow: 0px 4px 14px $dark-brand-ft-50;
+    }
 
     &:disabled {
       border: 2px solid $dark-brand-ft-50;
