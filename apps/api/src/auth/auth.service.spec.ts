@@ -1,6 +1,5 @@
 import { LinkableService } from '@alekol/shared/enums';
 import {
-  AccountLinkingData,
   DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
   FtAuthorizationCodeExchangeResponse,
@@ -19,8 +18,14 @@ import { AxiosResponse } from 'axios';
 import { IronSession } from 'iron-session';
 import { of } from 'rxjs';
 import { PrismaService } from '../prisma.service';
-import { User as UserModel } from '@prisma/client';
 import { AuthService } from './auth.service';
+import {
+  mockDiscordUser,
+  mockFtUser,
+  mockLinkedDiscord,
+  mockLinkedFt,
+  mockUser,
+} from '../../tests/users';
 
 const accessToken = faker.random.numeric(17);
 const code = faker.random.numeric(17);
@@ -42,35 +47,6 @@ const config = () => ({
     },
   },
 });
-const discordUser: DiscordUser = {
-  id: faker.random.numeric(17),
-  username: faker.internet.userName(),
-  discriminator: faker.random.numeric(4),
-  avatar: faker.random.numeric(17),
-};
-const ftUser: FtUser = {
-  id: faker.random.numeric(17),
-  login: faker.internet.userName(),
-  image: {
-    link: faker.internet.avatar(),
-  },
-};
-const linkedDiscord: AccountLinkingData = {
-  id: discordUser.id,
-  name: `${discordUser.username}#${discordUser.discriminator}`,
-  avatarUrl: generateDiscordUserAvatarUrl(discordUser),
-};
-const linkedFt: AccountLinkingData = {
-  id: ftUser.id,
-  name: ftUser.login,
-  avatarUrl: ftUser.image.link,
-};
-
-const mockUser: UserModel = {
-  id: faker.datatype.uuid(),
-  discordId: linkedDiscord.id,
-  ftLogin: linkedFt.name,
-};
 let mockSession: IronSession;
 
 beforeEach(() => {
@@ -172,7 +148,7 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(accessToken);
       httpService.get.mockImplementationOnce(() =>
         of({
-          data: discordUser,
+          data: mockDiscordUser,
         } as AxiosResponse<DiscordUser>)
       );
     });
@@ -198,7 +174,7 @@ describe('AuthService', () => {
     });
     it('should return the raw Discord user', async () => {
       const response = await service.exchangeDiscordCodeWithUser(code);
-      expect(response).toStrictEqual(discordUser);
+      expect(response).toStrictEqual(mockDiscordUser);
     });
   });
 
@@ -260,7 +236,7 @@ describe('AuthService', () => {
         .mockResolvedValueOnce(accessToken);
       httpService.get.mockImplementationOnce(() =>
         of({
-          data: ftUser,
+          data: mockFtUser,
         } as AxiosResponse<FtUser>)
       );
     });
@@ -282,23 +258,23 @@ describe('AuthService', () => {
     });
     it('should return the raw 42 user', async () => {
       const response = await service.exchangeFtCodeWithUser(code);
-      expect(response).toStrictEqual(ftUser);
+      expect(response).toStrictEqual(mockFtUser);
     });
   });
 
   describe.each([
     {
-      accountLinking: { [LinkableService.Discord]: linkedDiscord },
-      initialSession: { [LinkableService.Ft]: linkedFt },
+      accountLinking: { [LinkableService.Discord]: mockLinkedDiscord },
+      initialSession: { [LinkableService.Ft]: mockLinkedFt },
     },
     {
-      accountLinking: { [LinkableService.Ft]: linkedFt },
-      initialSession: { [LinkableService.Discord]: linkedDiscord },
+      accountLinking: { [LinkableService.Ft]: mockLinkedFt },
+      initialSession: { [LinkableService.Discord]: mockLinkedDiscord },
     },
     {
       accountLinking: {
-        [LinkableService.Discord]: linkedDiscord,
-        [LinkableService.Ft]: linkedFt,
+        [LinkableService.Discord]: mockLinkedDiscord,
+        [LinkableService.Ft]: mockLinkedFt,
       },
       initialSession: {},
     },
@@ -326,12 +302,12 @@ describe('AuthService', () => {
   describe('saveDiscordUserInSession', () => {
     it('should save the Discord user in the session', async () => {
       service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
-      await service.saveDiscordUserInSession(mockSession, discordUser);
+      await service.saveDiscordUserInSession(mockSession, mockDiscordUser);
       expect(service.linkServices).toHaveBeenCalledWith(mockSession, {
         [LinkableService.Discord]: {
-          id: discordUser.id,
-          name: `${discordUser.username}#${discordUser.discriminator}`,
-          avatarUrl: generateDiscordUserAvatarUrl(discordUser),
+          id: mockDiscordUser.id,
+          name: `${mockDiscordUser.username}#${mockDiscordUser.discriminator}`,
+          avatarUrl: generateDiscordUserAvatarUrl(mockDiscordUser),
         },
       });
     });
@@ -340,12 +316,12 @@ describe('AuthService', () => {
   describe('saveFtUserInSession', () => {
     it('should save the 42 user in the session', async () => {
       service.linkServices = jest.fn().mockResolvedValueOnce(undefined);
-      await service.saveFtUserInSession(mockSession, ftUser);
+      await service.saveFtUserInSession(mockSession, mockFtUser);
       expect(service.linkServices).toHaveBeenCalledWith(mockSession, {
         [LinkableService.Ft]: {
-          id: ftUser.id,
-          name: ftUser.login,
-          avatarUrl: ftUser.image.link,
+          id: mockFtUser.id,
+          name: mockFtUser.login,
+          avatarUrl: mockFtUser.image.link,
         },
       });
     });
@@ -417,15 +393,15 @@ describe('AuthService', () => {
       let mockUserAccountLinking: Required<User['accountLinking']>;
       const mockFindUniqueUserResult = {
         id: faker.datatype.uuid(),
-        discordId: linkedDiscord.id,
-        ftLogin: linkedFt.name,
+        discordId: mockLinkedDiscord.id,
+        ftLogin: mockLinkedFt.name,
       };
       let services: { [key in LinkableService]: [string, string] };
 
       beforeEach(() => {
         mockUserAccountLinking = {
-          discord: linkedDiscord,
-          ft: linkedFt,
+          discord: mockLinkedDiscord,
+          ft: mockLinkedFt,
         };
         services = {
           [LinkableService.Discord]: [
@@ -476,14 +452,14 @@ describe('AuthService', () => {
       let mockUserAccountLinking: Required<User['accountLinking']>;
       const mockFindUniqueUserResult = {
         id: faker.datatype.uuid(),
-        discordId: linkedDiscord.id,
-        ftLogin: linkedFt.name,
+        discordId: mockLinkedDiscord.id,
+        ftLogin: mockLinkedFt.name,
       };
 
       beforeEach(() => {
         mockUserAccountLinking = {
-          discord: linkedDiscord,
-          ft: linkedFt,
+          discord: mockLinkedDiscord,
+          ft: mockLinkedFt,
         };
         service.getLinkedServiceAccount = jest.fn().mockResolvedValue(null);
       });
@@ -523,8 +499,8 @@ describe('AuthService', () => {
 
     beforeEach(() => {
       mockUserAccountLinking = {
-        discord: linkedDiscord,
-        ft: linkedFt,
+        discord: mockLinkedDiscord,
+        ft: mockLinkedFt,
       };
       service.serviceIsAlreadyRegistered = jest.fn().mockResolvedValue(false);
     });
@@ -559,8 +535,8 @@ describe('AuthService', () => {
 
     beforeEach(() => {
       mockUserAccountLinking = {
-        discord: linkedDiscord,
-        ft: linkedFt,
+        discord: mockLinkedDiscord,
+        ft: mockLinkedFt,
       };
     });
 
@@ -585,15 +561,15 @@ describe('AuthService', () => {
   describe('createAccount', () => {
     const mockCreateUserResult = {
       id: faker.datatype.uuid(),
-      discordId: linkedDiscord.id,
-      ftLogin: linkedFt.name,
+      discordId: mockLinkedDiscord.id,
+      ftLogin: mockLinkedFt.name,
     };
 
     beforeEach(() => {
       mockSession.user = {
         accountLinking: {
-          discord: linkedDiscord,
-          ft: linkedFt,
+          discord: mockLinkedDiscord,
+          ft: mockLinkedFt,
         },
       };
       service.allServicesAreLinked = jest.fn().mockReturnValue(true);
@@ -634,8 +610,8 @@ describe('AuthService', () => {
       expect(prisma.user.create).toHaveBeenCalledWith(
         expect.objectContaining({
           data: {
-            discordId: linkedDiscord.id,
-            ftLogin: linkedFt.name,
+            discordId: mockLinkedDiscord.id,
+            ftLogin: mockLinkedFt.name,
           },
         })
       );
@@ -662,8 +638,8 @@ describe('AuthService', () => {
     it('should reset accountLinking property', async () => {
       mockSession.user = {
         accountLinking: {
-          discord: linkedDiscord,
-          ft: linkedFt,
+          discord: mockLinkedDiscord,
+          ft: mockLinkedFt,
         },
       };
       await service.login(mockSession, mockUser);
