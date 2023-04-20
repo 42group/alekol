@@ -1,7 +1,7 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { LinkableService } from '@alekol/shared/enums';
 import { User } from '@alekol/shared/interfaces';
-import { AuthForm } from '@alekol/shared/ui';
+import { AuthForm, ContinueAccountCreationHeader } from '@alekol/shared/ui';
 import { ironSessionWrapper } from '@alekol/shared/utils';
 import config from '../../lib/config';
 import { useState } from 'react';
@@ -16,6 +16,7 @@ export interface AuthProps {
 }
 
 export function Auth({ user }: AuthProps) {
+  const [loading, setLoading] = useState(false);
   const [sessionUser, setSessionUser] = useState(user);
 
   if (!sessionUser) return null;
@@ -34,20 +35,34 @@ export function Auth({ user }: AuthProps) {
   };
 
   return (
-    <AuthForm
-      servicesConfig={servicesConfig}
-      unlinkService={(service: LinkableService) => {
-        setSessionUser((oldUser) => {
-          const newUser = JSON.parse(JSON.stringify(oldUser));
-          delete newUser.accountLinking[service];
-          return newUser;
-        });
-        return () => {
-          setSessionUser(sessionUser);
-          return sessionUser;
-        };
-      }}
-    />
+    <div>
+      {sessionUser.accountLinking[LinkableService.Discord] &&
+        sessionUser.accountLinking[LinkableService.Ft] && (
+          <ContinueAccountCreationHeader
+            onLoading={() => {
+              setLoading(true);
+              return () => {
+                setLoading(false);
+              };
+            }}
+          />
+        )}
+      <AuthForm
+        disabled={loading}
+        servicesConfig={servicesConfig}
+        unlinkService={(service: LinkableService) => {
+          setSessionUser((oldUser) => {
+            const newUser = JSON.parse(JSON.stringify(oldUser));
+            delete newUser.accountLinking[service];
+            return newUser;
+          });
+          return () => {
+            setSessionUser(sessionUser);
+            return sessionUser;
+          };
+        }}
+      />
+    </div>
   );
 }
 
