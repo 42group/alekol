@@ -5,6 +5,7 @@
 ### Features
 
 - add account creation (the user can now be added to the database)
+- login after first authentication if you already have an account
 - add logout button on the new Dashboard page
 
 ## [0.2.4] - 2023-04-16
