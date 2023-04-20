@@ -70,7 +70,9 @@ export function AuthForm({
           <AccountLinking
             name={service.name}
             id={service.id}
-            linkingComponent={service.linkingComponent(disabled)}
+            linkingComponent={service.linkingComponent(
+              disabled || disabledBecauseNotLoading
+            )}
             unlinkService={unlinkService}
             user={service.user}
             loading={loading}
