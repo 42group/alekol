@@ -3,9 +3,9 @@ import { useCodeExchange } from './use-code-exchange';
 import { faker } from '@faker-js/faker';
 import fetchMock from 'jest-fetch-mock';
 import mockRouter from 'next-router-mock';
-import { AuthenticationStatus } from '@alekol/shared/enums';
+import { AuthenticationStatus, LinkableService } from '@alekol/shared/enums';
 
-const service = faker.company.name();
+const service = LinkableService.Discord;
 const code = faker.random.numeric(17);
 const mockState = faker.random.alphaNumeric(32);
 

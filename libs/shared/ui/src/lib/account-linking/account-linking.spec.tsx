@@ -6,6 +6,7 @@ import LoadingParagraph from '../loading-paragraph/loading-paragraph';
 import fetchMock from 'jest-fetch-mock';
 
 import AccountLinking from './account-linking';
+import { LinkableService } from '@alekol/shared/enums';
 
 jest.mock('../loading-avatar/loading-avatar');
 jest.mock('../loading-paragraph/loading-paragraph');
@@ -13,7 +14,7 @@ const mockRollbackUnlink = jest.fn();
 const mockUnlinkService = jest.fn(() => mockRollbackUnlink);
 
 const mockServiceName = faker.company.name();
-const mockServiceId = mockServiceName.toLowerCase();
+const mockServiceId = LinkableService.Ft;
 const mockUser: AccountLinkingData = {
   id: faker.random.numeric(17),
   name: faker.internet.userName(),
