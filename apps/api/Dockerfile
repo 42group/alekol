@@ -4,6 +4,7 @@ WORKDIR /usr/src
 COPY package*.json ./
 RUN npm ci
 COPY . .
+RUN npx prisma generate --schema=apps/api/prisma/schema.prisma
 RUN npx nx build api --generatePackageJson
 
 # Runner
