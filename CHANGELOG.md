@@ -1,5 +1,12 @@
 # Changelog
 
+## [0.2.5] - 2023-04-20
+
+### Features
+
+- add account creation (the user can now be added to the database)
+- add logout button on the new Dashboard page
+
 ## [0.2.4] - 2023-04-16
 
 ### Features
