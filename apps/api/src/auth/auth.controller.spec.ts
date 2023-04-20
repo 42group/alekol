@@ -200,4 +200,15 @@ describe('AuthController', () => {
       expect(result).toStrictEqual(mockCreatedUser);
     });
   });
+
+  describe('logout', () => {
+    beforeEach(() => {
+      service.logout = jest.fn();
+    });
+
+    it('should logout the user', () => {
+      controller.logout(mockSession);
+      expect(service.logout).toHaveBeenCalledWith(mockSession);
+    });
+  });
 });
