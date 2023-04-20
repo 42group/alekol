@@ -13,11 +13,15 @@ jobs:
     with:
       main-branch-name: main
       number-of-agents: 3
+      install-commands: |
+        npm ci
+        npx prisma generate --schema=apps/api/prisma/schema.prisma
       init-commands: |
         npx nx-cloud start-ci-run --stop-agents-after="build" --agent-count=3
       parallel-commands: |
         npx nx-cloud record -- npx nx format:check
       parallel-commands-on-agents: |
+        cat node_modules/.prisma/client/index.d.ts
         npx nx affected --target=lint --parallel=3
         npx nx affected --target=test --parallel=3 --ci --code-coverage
         npx nx affected --target=build --parallel=3
@@ -27,3 +31,6 @@ jobs:
     uses: nrwl/ci/.github/workflows/nx-cloud-agents.yml@v0.11.3
     with:
       number-of-agents: 3
+      install-commands: |
+        npm ci
+        npx prisma generate --schema=apps/api/prisma/schema.prisma
