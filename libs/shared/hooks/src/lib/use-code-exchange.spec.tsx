@@ -3,6 +3,7 @@ import { useCodeExchange } from './use-code-exchange';
 import { faker } from '@faker-js/faker';
 import fetchMock from 'jest-fetch-mock';
 import mockRouter from 'next-router-mock';
+import { AuthenticationStatus } from '@alekol/shared/enums';
 
 const service = faker.company.name();
 const code = faker.random.numeric(17);
@@ -62,6 +63,25 @@ describe('useCodeExchange', () => {
       headers: {
         'Content-Type': 'application/json',
       },
+    });
+  });
+  it("should redirect to '/dashboard' on authentication", async () => {
+    fetchMock.mockResponse(
+      JSON.stringify({
+        hello: 'world',
+        status: AuthenticationStatus.Authenticated,
+      })
+    );
+    mockRouter.query.state = mockState;
+    mockRouter.query.code = code;
+    sessionStorage.setItem('state', mockState);
+    await act(async () => {
+      renderHook(() => useCodeExchange(service));
+    });
+
+    expect(mockRouter).toMatchObject({
+      asPath: '/dashboard',
+      pathname: '/dashboard',
     });
   });
   it("should redirect to '/auth' on success", async () => {

@@ -1,6 +1,6 @@
 import router from 'next/router';
 import { useEffect } from 'react';
-import { LinkableService } from '@alekol/shared/enums';
+import { AuthenticationStatus, LinkableService } from '@alekol/shared/enums';
 
 export const useCodeExchange = (service: LinkableService) => {
   useEffect(() => {
@@ -34,7 +34,9 @@ export const useCodeExchange = (service: LinkableService) => {
         }
         return res.json();
       })
-      .then(() => {
+      .then((res) => {
+        if (res.status === AuthenticationStatus.Authenticated)
+          return router.replace('/dashboard');
         return router.replace('/auth');
       })
       .catch(() => {
