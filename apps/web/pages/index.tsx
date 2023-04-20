@@ -7,7 +7,7 @@ import {
   Separator,
 } from '@alekol/shared/ui';
 import { ironSessionWrapper } from '@alekol/shared/utils';
-import styles from '../styles/page-index.module.scss';
+import styles from './index.module.scss';
 import config from '../lib/config';
 import { LinkableService } from '@alekol/shared/enums';
 
