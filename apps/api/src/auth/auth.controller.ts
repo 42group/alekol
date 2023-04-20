@@ -8,7 +8,7 @@ import {
   Session,
 } from '@nestjs/common';
 import { DiscordCodeExchangeDto, FtCodeExchangeDto } from '@alekol/shared/dtos';
-import { LinkableService } from '@alekol/shared/enums';
+import { AuthenticationStatus, LinkableService } from '@alekol/shared/enums';
 import { IronSession } from 'iron-session';
 import { AuthService } from './auth.service';
 
@@ -25,7 +25,12 @@ export class AuthController {
       discordCodeExchangeDto.code
     );
     await this.authService.saveDiscordUserInSession(session, discordUser);
-    return session.user?.accountLinking[LinkableService.Discord];
+
+    const sessionUser = session.user?.accountLinking[LinkableService.Discord];
+    return {
+      ...sessionUser,
+      status: AuthenticationStatus.Pending,
+    };
   }
 
   @Post(`oauth2/${LinkableService.Ft}/code`)
@@ -37,7 +42,12 @@ export class AuthController {
       ftCodeExchangeDto.code
     );
     await this.authService.saveFtUserInSession(session, ftUser);
-    return session.user?.accountLinking[LinkableService.Ft];
+
+    const sessionUser = session.user?.accountLinking[LinkableService.Ft];
+    return {
+      ...sessionUser,
+      status: AuthenticationStatus.Pending,
+    };
   }
 
   @HttpCode(HttpStatus.NO_CONTENT)

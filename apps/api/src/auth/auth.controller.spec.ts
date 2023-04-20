@@ -7,7 +7,7 @@ import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 import { DiscordUser, FtUser } from '@alekol/shared/interfaces';
 import { DiscordCodeExchangeDto } from '@alekol/shared/dtos';
-import { LinkableService } from '@alekol/shared/enums';
+import { AuthenticationStatus, LinkableService } from '@alekol/shared/enums';
 
 const discordCodeExchangeDto: DiscordCodeExchangeDto = {
   code: faker.random.numeric(17),
@@ -111,7 +111,10 @@ describe('AuthController', () => {
         discordCodeExchangeDto,
         session
       );
-      expect(response).toStrictEqual(linkedDiscord);
+      expect(response).toStrictEqual({
+        ...linkedDiscord,
+        status: AuthenticationStatus.Pending,
+      });
     });
   });
 
@@ -159,7 +162,10 @@ describe('AuthController', () => {
         ftCodeExchangeDto,
         session
       );
-      expect(response).toStrictEqual(linkedFt);
+      expect(response).toStrictEqual({
+        ...linkedFt,
+        status: AuthenticationStatus.Pending,
+      });
     });
   });
 
