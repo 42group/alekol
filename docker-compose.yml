@@ -13,6 +13,13 @@ services:
       - database-data:/var/lib/postgresql/data
     restart: unless-stopped
 
+  redis:
+    image: redis:7-alpine
+    container_name: redis
+    networks:
+      - bakend
+    restart: unless-stopped
+
   api:
     build:
       context: .

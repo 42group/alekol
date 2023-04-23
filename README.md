@@ -35,6 +35,10 @@ DATABASE_NAME= # The database name
 DATABASE_USERNAME= # Username of the postgres user
 DATABASE_PASSWORD= # Password of the postgres user
 DATABASE_URL="postgresql://${DATABASE_USERNAME}:${DATABASE_PASSWORD}@database:5432/${DATABASE_NAME}?schema=public" # This is URL to which the API will be able to connect to access the Postgres database. This can be left untouched
+
+# Redis cache
+CACHE_HOST= # The host of the Redis server (probably `redis` if you run using Docker)
+CACHE_PORT=6379 # The port of the Redis server (default)
 ```
 
 You can now start the server.

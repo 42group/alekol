@@ -1,6 +1,10 @@
 import { LinkableService } from '@alekol/shared/enums';
 
 export default () => ({
+  cache: {
+    host: `${process.env.CACHE_HOST}`,
+    port: parseInt(`${process.env.CACHE_PORT}`),
+  },
   [LinkableService.Discord]: {
     api: {
       baseUrl: 'https://discord.com/api/v10',
