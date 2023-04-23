@@ -8,6 +8,7 @@ import { AppService } from './app.service';
 import { FtWebsocketModule } from '../ft-websocket/ft-websocket.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
+import type { RedisClientOptions } from 'redis';
 
 @Module({
   imports: [
@@ -15,8 +16,9 @@ import { redisStore } from 'cache-manager-redis-yet';
       imports: [ConfigModule],
       useFactory: async (configService: ConfigService) => ({
         store: redisStore,
-        host: configService.getOrThrow<string>('cache.host'),
-        port: configService.getOrThrow<number>('cache.port'),
+        url: `redis://${configService.getOrThrow<string>(
+          'cache.host'
+        )}:${configService.getOrThrow<number>('cache.port')}`,
         ttl: 0,
         max: 0,
       }),
