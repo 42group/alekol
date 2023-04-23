@@ -1,12 +1,12 @@
-import { HttpModule } from '@nestjs/axios';
 import { Module } from '@nestjs/common';
-import { ConfigModule } from '@nestjs/config';
+import { DiscordModule } from '../discord/discord.module';
+import { FtModule } from '../ft/ft.module';
 import { PrismaService } from '../prisma.service';
 import { AuthController } from './auth.controller';
 import { AuthService } from './auth.service';
 
 @Module({
-  imports: [ConfigModule, HttpModule],
+  imports: [DiscordModule, FtModule],
   controllers: [AuthController],
   providers: [AuthService, PrismaService],
 })
