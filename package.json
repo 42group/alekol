@@ -32,6 +32,7 @@
     "@types/node": "18.14.2",
     "@types/react": "18.0.28",
     "@types/react-dom": "18.0.11",
+    "@types/ws": "^8.5.4",
     "@typescript-eslint/eslint-plugin": "^5.36.1",
     "@typescript-eslint/parser": "^5.36.1",
     "babel-jest": "^29.4.1",
@@ -83,6 +84,7 @@
     "react-dom": "18.2.0",
     "reflect-metadata": "^0.1.13",
     "rxjs": "^7.0.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "ws": "^8.13.0"
   }
 }
