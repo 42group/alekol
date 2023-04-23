@@ -1,147 +1,32 @@
-import {
-  BadRequestException,
-  Injectable,
-  InternalServerErrorException,
-} from '@nestjs/common';
-import { ConfigService } from '@nestjs/config';
+import { BadRequestException, Injectable } from '@nestjs/common';
 import { LinkableService } from '@alekol/shared/enums';
 import {
   AccountLinkingData,
-  DiscordAuthorizationCodeExchangeResponse,
   DiscordUser,
-  FtAuthorizationCodeExchangeResponse,
   FtUser,
   User,
 } from '@alekol/shared/interfaces';
 import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 import { IronSession } from 'iron-session';
-import { HttpService } from '@nestjs/axios';
-import { catchError, firstValueFrom } from 'rxjs';
 import { PrismaService } from '../prisma.service';
 import { User as UserModel } from '@prisma/client';
+import { DiscordService } from '../discord/discord.service';
+import { FtService } from '../ft/ft.service';
 
 @Injectable()
 export class AuthService {
-  private discordApiBaseUrl: string;
-  private ftApiBaseUrl: string;
-
   constructor(
-    private configService: ConfigService,
-    private httpService: HttpService,
+    private discordService: DiscordService,
+    private ftService: FtService,
     private prisma: PrismaService
-  ) {
-    this.discordApiBaseUrl = `${this.configService.get(
-      `${LinkableService.Discord}.api.baseUrl`
-    )}`;
-    this.ftApiBaseUrl = `${this.configService.get(
-      `${LinkableService.Ft}.api.baseUrl`
-    )}`;
-  }
-
-  async exchangeDiscordCode(
-    code: string
-  ): Promise<DiscordAuthorizationCodeExchangeResponse> {
-    const body = new URLSearchParams({
-      client_id: `${this.configService.get(
-        `${LinkableService.Discord}.api.clientId`
-      )}`,
-      client_secret: `${this.configService.get(
-        `${LinkableService.Discord}.api.clientSecret`
-      )}`,
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: `${this.configService.get(
-        `${LinkableService.Discord}.api.redirectUri`
-      )}`,
-    });
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post<DiscordAuthorizationCodeExchangeResponse>(
-          `${this.discordApiBaseUrl}/oauth2/token`,
-          body
-        )
-        .pipe(
-          catchError((error) => {
-            throw new InternalServerErrorException(error.message);
-          })
-        )
-    );
-    return data;
-  }
-
-  async exchangeDiscordCodeWithAccessToken(code: string) {
-    return this.exchangeDiscordCode(code).then((res) => res.access_token);
-  }
+  ) {}
 
   async exchangeDiscordCodeWithUser(code: string): Promise<DiscordUser> {
-    const accessToken = await this.exchangeDiscordCodeWithAccessToken(code);
-    const { data } = await firstValueFrom(
-      this.httpService
-        .get<DiscordUser>(`${this.discordApiBaseUrl}/users/@me`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-        .pipe(
-          catchError((error) => {
-            throw new InternalServerErrorException(error.message);
-          })
-        )
-    );
-    return data;
-  }
-
-  async exchangeFtCode(
-    code: string
-  ): Promise<FtAuthorizationCodeExchangeResponse> {
-    const body = new URLSearchParams({
-      client_id: `${this.configService.get(
-        `${LinkableService.Ft}.api.clientId`
-      )}`,
-      client_secret: `${this.configService.get(
-        `${LinkableService.Ft}.api.clientSecret`
-      )}`,
-      grant_type: 'authorization_code',
-      code,
-      redirect_uri: `${this.configService.get(
-        `${LinkableService.Ft}.api.redirectUri`
-      )}`,
-    });
-    const { data } = await firstValueFrom(
-      this.httpService
-        .post<FtAuthorizationCodeExchangeResponse>(
-          `${this.ftApiBaseUrl}/oauth/token`,
-          body
-        )
-        .pipe(
-          catchError((error) => {
-            throw new InternalServerErrorException(error.message);
-          })
-        )
-    );
-    return data;
-  }
-
-  async exchangeFtCodeWithAccessToken(code: string) {
-    return this.exchangeFtCode(code).then((res) => res.access_token);
+    return this.discordService.exchangeCodeWithUser(code);
   }
 
   async exchangeFtCodeWithUser(code: string): Promise<FtUser> {
-    const accessToken = await this.exchangeFtCodeWithAccessToken(code);
-    const { data } = await firstValueFrom(
-      this.httpService
-        .get<FtUser>(`${this.ftApiBaseUrl}/me`, {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        })
-        .pipe(
-          catchError((error) => {
-            throw new InternalServerErrorException(error.message);
-          })
-        )
-    );
-    return data;
+    return this.ftService.exchangeCodeWithUser(code);
   }
 
   async linkServices(
