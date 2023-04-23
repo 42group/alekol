@@ -27,6 +27,8 @@ DISCORD_API_CLIENT_SECRET= # Your Discord client secret
 # 42
 FT_API_CLIENT_ID= # Your 42 client ID
 FT_API_CLIENT_SECRET= # Your 42 client sercret
+FT_USER_ID_COOKIE= # KEEP THIS SECRET, THIS IS SENSITIVE INFORMATION !! Your 42 `user.id` cookie (checkout the FAQ for more information)
+FT_USER_ID= # Your 42 user ID (checkout the FAQ for more information)
 
 # Secret
 SESSION_PASSWORD= # The password that will be used to encrypt cookies. For more information: https://github.com/vvo/iron-session
@@ -58,3 +60,13 @@ This command will start the migration script in its own Docker container. Once t
 ```sh
 docker compose -f docker-compose.yml -f docker-compose.migration.yml rm prisma-migrate
 ```
+
+## FAQ
+
+### How do I find my user ID and my `user.id` cookie ? And what is the difference ?
+
+Ok, first of all, these IDs are required for the websocket to work. It seems to be the way that 42 authenticates you when you want to connect to their socket.
+
+Now the difference is pretty straightforward (even though the names can be confusing). Your user ID is the ID by which you are recognized by the API. It is unique, and it represents you as a user. It is a public information. Your `user.id` cookie if the cookie that allows you to browse the intranet. **IT IS A VERY SENSITIVE INFORMATION** so **KEEP IT A SECRET**. Anyone with this cookie can and will use your intranet account, without you knowing.
+
+To find this cookie, just go on [the intra page](https://profile.intra.42.fr) and copy the `user.id` cookie (you will be able to find it in the Developer Tools of most Web Browser).
