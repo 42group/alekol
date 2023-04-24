@@ -1,6 +1,7 @@
 import { LinkableService } from '@alekol/shared/enums';
 import {
   FtAuthorizationCodeExchangeResponse,
+  FtLocation,
   FtUser,
 } from '@alekol/shared/interfaces';
 import { faker } from '@faker-js/faker';
@@ -27,6 +28,9 @@ const mockAccessTokenObject: jest.Mocked<AccessToken> = {
   refresh: jest.fn().mockReturnThis(),
   revoke: jest.fn().mockResolvedValue(undefined),
   revokeAll: jest.fn().mockResolvedValue(undefined),
+};
+const mockFtLocation: FtLocation = {
+  id: parseInt(faker.random.numeric(6)),
 };
 
 const config = () => ({
@@ -227,6 +231,39 @@ describe('FtService', () => {
     it('should return the raw 42 user', async () => {
       const response = await service.exchangeCodeWithUser(code);
       expect(response).toStrictEqual(mockFtUser);
+    });
+  });
+
+  describe('getLatestLocation', () => {
+    beforeEach(() => {
+      service.getAccessToken = jest.fn().mockResolvedValue(accessToken);
+      httpService.get.mockImplementationOnce(() =>
+        of({
+          data: [mockFtLocation],
+        } as AxiosResponse<FtLocation[]>)
+      );
+    });
+
+    it('should get an access token', async () => {
+      await service.getLatestLocation();
+      expect(service.getAccessToken).toHaveBeenCalled();
+    });
+    it('should fetch the locations', async () => {
+      await service.getLatestLocation();
+      expect(httpService.get).toHaveBeenCalledWith(
+        `${configService.get(
+          `${LinkableService.Ft}.api.baseUrl`
+        )}/locations?sort=-id&filter[active]=true&per_page=1`,
+        {
+          headers: {
+            Authorization: `Bearer ${accessToken}`,
+          },
+        }
+      );
+    });
+    it('should return the first location', async () => {
+      const response = await service.getLatestLocation();
+      expect(response).toStrictEqual(mockFtLocation);
     });
   });
 });

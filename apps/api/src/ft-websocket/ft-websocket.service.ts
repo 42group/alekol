@@ -3,6 +3,7 @@ import { LocationMessage } from '@alekol/shared/interfaces';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
+import { Interval } from '@nestjs/schedule';
 import { Cache } from 'cache-manager';
 import WebSocket from 'ws';
 import { FtService } from '../ft/ft.service';
@@ -30,6 +31,21 @@ export class FtWebsocketService {
     );
     this.ws.on('open', this.onOpen());
     this.ws.on('message', this.onMessage());
+  }
+
+  @Interval(60 * 1000)
+  async checkHealth() {
+    const latestLocation = await this.ftService.getLatestLocation();
+    if (
+      this.latestLocation > 0 &&
+      latestLocation.id > this.latestLocation + 20
+    ) {
+      this.logger.log(
+        'Not receiving any updates from the websocket, closing and reconnecting...'
+      );
+      this.ws.close();
+      this.initializeWebSocket();
+    }
   }
 
   onOpen() {
