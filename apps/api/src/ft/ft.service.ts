@@ -7,10 +7,13 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
+import { AccessToken, ClientCredentials } from 'simple-oauth2';
 
 @Injectable()
 export class FtService {
   private ftApiBaseUrl: string;
+  public client: ClientCredentials;
+  public accessToken!: AccessToken;
 
   constructor(
     private configService: ConfigService,
@@ -19,6 +22,34 @@ export class FtService {
     this.ftApiBaseUrl = `${this.configService.get(
       `${LinkableService.Ft}.api.baseUrl`
     )}`;
+    this.client = new ClientCredentials({
+      client: {
+        id: configService.getOrThrow(`${LinkableService.Ft}.api.clientId`),
+        secret: configService.getOrThrow(
+          `${LinkableService.Ft}.api.clientSecret`
+        ),
+      },
+      auth: {
+        tokenHost: configService.getOrThrow(
+          `${LinkableService.Ft}.api.baseUrl`
+        ),
+      },
+    });
+  }
+
+  async populateAccessToken() {
+    if (this.accessToken) {
+      if (this.accessToken.expired()) {
+        this.accessToken = await this.accessToken.refresh({ scope: 'public' });
+      }
+    } else {
+      this.accessToken = await this.client.getToken({ scope: 'public' });
+    }
+  }
+
+  async getAccessToken() {
+    await this.populateAccessToken();
+    return this.accessToken.token.access_token;
   }
 
   async exchangeCode(
