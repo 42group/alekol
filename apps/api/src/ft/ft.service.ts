@@ -1,6 +1,7 @@
 import { LinkableService } from '@alekol/shared/enums';
 import {
   FtAuthorizationCodeExchangeResponse,
+  FtLocation,
   FtUser,
 } from '@alekol/shared/interfaces';
 import { HttpService } from '@nestjs/axios';
@@ -103,5 +104,26 @@ export class FtService {
         )
     );
     return data;
+  }
+
+  async getLatestLocation() {
+    const accessToken = await this.getAccessToken();
+    const { data } = await firstValueFrom(
+      this.httpService
+        .get<FtLocation[]>(
+          `${this.ftApiBaseUrl}/locations?sort=-id&filter[active]=true&per_page=1`,
+          {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          }
+        )
+        .pipe(
+          catchError((error) => {
+            throw new InternalServerErrorException(error.message);
+          })
+        )
+    );
+    return data[0];
   }
 }

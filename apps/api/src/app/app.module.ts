@@ -9,6 +9,7 @@ import { FtWebsocketModule } from '../ft-websocket/ft-websocket.module';
 import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import type { RedisClientOptions } from 'redis';
+import { ScheduleModule } from '@nestjs/schedule';
 
 @Module({
   imports: [
@@ -30,6 +31,7 @@ import type { RedisClientOptions } from 'redis';
     }),
     AuthModule,
     FtWebsocketModule,
+    ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
   providers: [AppService],

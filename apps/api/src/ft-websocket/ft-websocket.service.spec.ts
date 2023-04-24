@@ -86,6 +86,44 @@ describe('FtWebsocketService', () => {
     expect(service).toBeDefined();
   });
 
+  describe('checkHealth', () => {
+    beforeEach(() => {
+      ftService.getLatestLocation.mockResolvedValue(mockLatestLocation);
+      service.latestLocation = mockLatestLocation.id;
+    });
+
+    it('should fetch the latest location', async () => {
+      await service.checkHealth();
+      expect(ftService.getLatestLocation).toHaveBeenCalled();
+    });
+
+    describe('if the websocket seems ok', () => {
+      beforeEach(() => {
+        ftService.getLatestLocation.mockResolvedValue(mockLatestLocation);
+      });
+
+      it('should not close the websocket', async () => {
+        await service.checkHealth();
+        expect(mockWebSocket.close).not.toHaveBeenCalled();
+      });
+    });
+    describe('if the websocket seems broken', () => {
+      beforeEach(() => {
+        ftService.getLatestLocation.mockResolvedValue(mockLatestLocation);
+        service.latestLocation = mockLatestLocation.id - 30;
+      });
+
+      it('should close the websocket', async () => {
+        await service.checkHealth();
+        expect(mockWebSocket.close).toHaveBeenCalled();
+      });
+      it('should reconnect the websocket', async () => {
+        await service.checkHealth();
+        expect(mockWebSocket).not.toBe(service.ws);
+      });
+    });
+  });
+
   describe('onOpen', () => {
     it('should send subscription messages', () => {
       service.sendSubscription = jest.fn();
