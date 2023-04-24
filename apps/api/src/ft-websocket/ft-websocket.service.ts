@@ -5,14 +5,17 @@ import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { Cache } from 'cache-manager';
 import WebSocket from 'ws';
+import { FtService } from '../ft/ft.service';
 
 @Injectable()
 export class FtWebsocketService {
   public ws!: WebSocket;
+  public latestLocation = 0;
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
     private configService: ConfigService,
+    private ftService: FtService,
     private logger: Logger
   ) {
     cacheManager.reset();
@@ -60,6 +63,7 @@ export class FtWebsocketService {
           }`
         );
 
+        this.saveLatestLocationId(data.message.location);
         await this.updateUserLocation(data.message.location);
       }
     };
@@ -128,6 +132,10 @@ export class FtWebsocketService {
         })
       );
     });
+  }
+
+  saveLatestLocationId(location: LocationMessage['message']['location']) {
+    if (!location.end_at) this.latestLocation = location.id;
   }
 
   async updateUserLocation({

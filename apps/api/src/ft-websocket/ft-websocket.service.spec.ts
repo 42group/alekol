@@ -6,10 +6,11 @@ import { ConfigModule, ConfigService } from '@nestjs/config';
 import { Test, TestingModule } from '@nestjs/testing';
 import { FtWebsocketService } from './ft-websocket.service';
 import WebSocket from 'ws';
-import { LocationMessage } from '@alekol/shared/interfaces';
+import { FtLocation, LocationMessage } from '@alekol/shared/interfaces';
 import { faker } from '@faker-js/faker';
 import { LinkableService } from '@alekol/shared/enums';
 import { RedisStore } from 'cache-manager-redis-yet';
+import { FtService } from '../ft/ft.service';
 
 jest.mock('ws');
 
@@ -40,11 +41,15 @@ const mockMessage: LocationMessage = {
     location: mockLocation,
   },
 };
+const mockLatestLocation: FtLocation = {
+  ...mockLocation,
+};
 
 describe('FtWebsocketService', () => {
   let service: FtWebsocketService;
   let cacheManager: DeepMocked<Cache>;
   let configService: DeepMocked<ConfigService>;
+  let ftService: DeepMocked<FtService>;
   let mockWebSocket: jest.Mocked<WebSocket>;
 
   beforeEach(async () => {
@@ -63,12 +68,17 @@ describe('FtWebsocketService', () => {
             },
           }),
         },
+        {
+          provide: FtService,
+          useValue: createMock<FtService>(),
+        },
       ],
     }).compile();
 
     service = module.get<FtWebsocketService>(FtWebsocketService);
     cacheManager = module.get(CACHE_MANAGER);
     configService = module.get(ConfigService);
+    ftService = module.get(FtService);
     mockWebSocket = service.ws as jest.Mocked<WebSocket>;
   });
 
@@ -87,6 +97,7 @@ describe('FtWebsocketService', () => {
   describe('onMessage', () => {
     beforeEach(() => {
       service.isLocationMessageFromIdentifier = jest.fn().mockReturnValue(true);
+      service.saveLatestLocationId = jest.fn();
       service.updateUserLocation = jest.fn().mockResolvedValue(undefined);
     });
 
@@ -94,6 +105,10 @@ describe('FtWebsocketService', () => {
       it('should check the type of the message', async () => {
         await service.onMessage()(Buffer.from(JSON.stringify(mockMessage)));
         expect(service.isLocationMessageFromIdentifier).toHaveBeenCalled();
+      });
+      it("should save the latest location's id", async () => {
+        await service.onMessage()(Buffer.from(JSON.stringify(mockMessage)));
+        expect(service.saveLatestLocationId).toHaveBeenCalledWith(mockLocation);
       });
       it("should update the user's location", async () => {
         await service.onMessage()(Buffer.from(JSON.stringify(mockMessage)));
@@ -144,6 +159,27 @@ describe('FtWebsocketService', () => {
         );
       }
     );
+  });
+
+  describe('saveLatestLocationId', () => {
+    describe('if the user logs in', () => {
+      it("should save the location's id", () => {
+        const mockId = parseInt(faker.random.numeric(6));
+        service.saveLatestLocationId({ ...mockLocation, id: mockId });
+        expect(service.latestLocation).toBe(mockId);
+      });
+    });
+    describe('if the user logs out', () => {
+      it("should save the location's id", () => {
+        const mockId = parseInt(faker.random.numeric(6));
+        service.saveLatestLocationId({
+          ...mockLocation,
+          id: mockId,
+          end_at: faker.date.recent().toString(),
+        });
+        expect(service.latestLocation).not.toBe(mockId);
+      });
+    });
   });
 
   describe('updateUserLocation', () => {
