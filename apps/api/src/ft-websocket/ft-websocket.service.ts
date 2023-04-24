@@ -8,7 +8,7 @@ import WebSocket from 'ws';
 
 @Injectable()
 export class FtWebsocketService {
-  public ws;
+  public ws!: WebSocket;
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -16,6 +16,10 @@ export class FtWebsocketService {
     private logger: Logger
   ) {
     cacheManager.reset();
+    this.initializeWebSocket();
+  }
+
+  initializeWebSocket() {
     this.ws = new WebSocket(
       this.configService.getOrThrow(`${LinkableService.Ft}.websocket.url`),
       this.configService.get(`${LinkableService.Ft}.websocket.protocols`),
