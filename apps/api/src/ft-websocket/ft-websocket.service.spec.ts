@@ -25,6 +25,7 @@ const config = () => ({
 });
 
 const mockLocation = {
+  id: parseInt(faker.random.numeric(6)),
   begin_at: faker.date.recent().toString(),
   end_at: null,
   host: faker.random.alphaNumeric(6),
