@@ -17,9 +17,9 @@ export class FtWebsocketService {
   ) {
     cacheManager.reset();
     this.ws = new WebSocket(
-      configService.getOrThrow('ft.websocket.url'),
-      configService.get('ft.websocket.protocols'),
-      configService.get('ft.websocket.connectionConfig')
+      this.configService.getOrThrow(`${LinkableService.Ft}.websocket.url`),
+      this.configService.get(`${LinkableService.Ft}.websocket.protocols`),
+      this.configService.get(`${LinkableService.Ft}.websocket.connectionConfig`)
     );
     this.ws.on('open', this.onOpen());
     this.ws.on('message', this.onMessage());
