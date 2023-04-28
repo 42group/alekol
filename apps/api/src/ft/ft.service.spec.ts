@@ -31,6 +31,12 @@ const mockAccessTokenObject: jest.Mocked<AccessToken> = {
 };
 const mockFtLocation: FtLocation = {
   id: parseInt(faker.random.numeric(6)),
+  begin_at: faker.date.recent().toString(),
+  end_at: null,
+  host: faker.random.alphaNumeric(6),
+  user: {
+    login: faker.internet.userName(),
+  },
 };
 
 const config = () => ({
