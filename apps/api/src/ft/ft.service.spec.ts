@@ -14,21 +14,14 @@ import { AxiosResponse } from 'axios';
 import { of } from 'rxjs';
 import { FtService } from './ft.service';
 import { AccessToken, ClientCredentials } from 'simple-oauth2';
+import { ApiClient } from '@alekol/shared/utils';
 
+jest.mock('@alekol/shared/utils');
 jest.mock('simple-oauth2');
 
 const accessToken = faker.random.numeric(17);
 const code = faker.random.numeric(17);
 
-const mockAccessTokenObject: jest.Mocked<AccessToken> = {
-  token: {
-    access_token: accessToken,
-  },
-  expired: jest.fn().mockReturnValue(false),
-  refresh: jest.fn().mockReturnThis(),
-  revoke: jest.fn().mockResolvedValue(undefined),
-  revokeAll: jest.fn().mockResolvedValue(undefined),
-};
 const mockFtLocation: FtLocation = {
   id: parseInt(faker.random.numeric(6)),
   begin_at: faker.date.recent().toString(),
@@ -64,9 +57,9 @@ beforeEach(() => {
 
 describe('FtService', () => {
   let service: FtService;
+  let apiClient: jest.Mocked<ApiClient>;
   let configService: DeepMocked<ConfigService>;
   let httpService: DeepMocked<HttpService>;
-  let oauth2Client: jest.Mocked<ClientCredentials>;
 
   beforeEach(async () => {
     const module: TestingModule = await Test.createTestingModule({
@@ -81,79 +74,13 @@ describe('FtService', () => {
     }).compile();
 
     service = module.get<FtService>(FtService);
+    apiClient = service.apiClient as jest.Mocked<ApiClient>;
     configService = module.get(ConfigService);
     httpService = module.get(HttpService);
-    oauth2Client = service.client as jest.Mocked<ClientCredentials>;
   });
 
   it('should be defined', () => {
     expect(service).toBeDefined();
-  });
-
-  describe('populateAccessToken', () => {
-    beforeEach(() => {
-      oauth2Client.getToken.mockResolvedValue(mockAccessTokenObject);
-    });
-
-    describe('if the access token is undefined', () => {
-      it('should get the token', async () => {
-        await service.populateAccessToken();
-        expect(oauth2Client.getToken).toHaveBeenCalledWith({ scope: 'public' });
-      });
-    });
-
-    describe('if the access token is expired', () => {
-      beforeEach(() => {
-        service.accessToken = mockAccessTokenObject;
-        mockAccessTokenObject.expired.mockReturnValueOnce(true);
-      });
-
-      it('should the expiracy of the token', async () => {
-        await service.populateAccessToken();
-        expect(mockAccessTokenObject.expired).toHaveBeenCalled();
-      });
-      it('should refresh the token', async () => {
-        await service.populateAccessToken();
-        expect(mockAccessTokenObject.refresh).toHaveBeenCalledWith({
-          scope: 'public',
-        });
-      });
-    });
-
-    describe('if the access token is still valid', () => {
-      beforeEach(() => {
-        service.accessToken = mockAccessTokenObject;
-      });
-
-      it('should the expiracy of the token', async () => {
-        await service.populateAccessToken();
-        expect(mockAccessTokenObject.expired).toHaveBeenCalledWith();
-      });
-      it('should not refresh the token', async () => {
-        await service.populateAccessToken();
-        expect(mockAccessTokenObject.refresh).not.toHaveBeenCalled();
-      });
-      it('should not get a new token', async () => {
-        await service.populateAccessToken();
-        expect(oauth2Client.getToken).not.toHaveBeenCalled();
-      });
-    });
-  });
-
-  describe('getAccessToken', () => {
-    beforeEach(() => {
-      service.populateAccessToken = jest.fn().mockResolvedValue(undefined);
-      service.accessToken = mockAccessTokenObject;
-    });
-
-    it('should populate the access token', async () => {
-      await service.getAccessToken();
-      expect(service.populateAccessToken).toHaveBeenCalled();
-    });
-    it('should return the access token as a string', async () => {
-      const result = await service.getAccessToken();
-      expect(result).toBe(mockAccessTokenObject.token.access_token);
-    });
   });
 
   describe('exchangeCode', () => {
@@ -242,29 +169,14 @@ describe('FtService', () => {
 
   describe('getLatestLocation', () => {
     beforeEach(() => {
-      service.getAccessToken = jest.fn().mockResolvedValue(accessToken);
-      httpService.get.mockImplementationOnce(() =>
-        of({
-          data: [mockFtLocation],
-        } as AxiosResponse<FtLocation[]>)
-      );
+      apiClient.request.mockResolvedValue([mockFtLocation, mockFtLocation]);
     });
 
-    it('should get an access token', async () => {
-      await service.getLatestLocation();
-      expect(service.getAccessToken).toHaveBeenCalled();
-    });
     it('should fetch the locations', async () => {
       await service.getLatestLocation();
-      expect(httpService.get).toHaveBeenCalledWith(
-        `${configService.get(
-          `${LinkableService.Ft}.api.baseUrl`
-        )}/locations?sort=-id&filter[active]=true&per_page=1`,
-        {
-          headers: {
-            Authorization: `Bearer ${accessToken}`,
-          },
-        }
+      expect(apiClient.request).toHaveBeenCalledWith(
+        '/locations?sort=-id&per_page=1',
+        { authenticated: true }
       );
     });
     it('should return the first location', async () => {
