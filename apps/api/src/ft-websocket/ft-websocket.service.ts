@@ -11,7 +11,7 @@ import { FtService } from '../ft/ft.service';
 @Injectable()
 export class FtWebsocketService {
   public ws!: WebSocket;
-  public latestLocation = 0;
+  public latestLocation: number | null = null;
 
   constructor(
     @Inject(CACHE_MANAGER) private cacheManager: Cache,
@@ -37,7 +37,7 @@ export class FtWebsocketService {
   async checkHealth() {
     const latestLocation = await this.ftService.getLatestLocation();
     if (
-      this.latestLocation > 0 &&
+      this.latestLocation !== null &&
       latestLocation.id > this.latestLocation + 20
     ) {
       this.logger.log(
