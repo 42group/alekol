@@ -96,4 +96,30 @@ export class FtService {
     );
     return data[0];
   }
+
+  async getAllLocations(latestLocationId?: number) {
+    return this.apiClient.requestLoopOverLinkHeader<FtLocation>(
+      '/locations?sort=-id&per_page=100',
+      { authenticated: true },
+      (data) => {
+        return !(
+          latestLocationId !== undefined &&
+          data[data.length - 1].id <= latestLocationId
+        );
+      }
+    );
+  }
+
+  async getAllActiveLocations(latestLocationId?: number) {
+    return this.apiClient.requestLoopOverLinkHeader<FtLocation>(
+      '/locations?sort=-id&filter[active]=true&per_page=100',
+      { authenticated: true },
+      (data) => {
+        return !(
+          latestLocationId !== undefined &&
+          data[data.length - 1].id <= latestLocationId
+        );
+      }
+    );
+  }
 }

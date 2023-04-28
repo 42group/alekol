@@ -128,9 +128,14 @@ describe('FtWebsocketService', () => {
   });
 
   describe('onOpen', () => {
-    it('should send subscription messages', () => {
+    it('should send subscription messages', async () => {
       service.sendSubscription = jest.fn();
-      service.onOpen()();
+      await service.onOpen()();
+      expect(service.sendSubscription).toHaveBeenCalled();
+    });
+    it('should fetch all active locations', async () => {
+      service.sendSubscription = jest.fn();
+      await service.onOpen()();
       expect(service.sendSubscription).toHaveBeenCalled();
     });
   });
@@ -231,6 +236,61 @@ describe('FtWebsocketService', () => {
       const mockId = faker.datatype.number({ min: 100000, max: 999999 });
       service.saveLatestLocationId({ ...mockLocation, id: mockId });
       expect(service.latestLocation).toBe(mockId);
+    });
+  });
+
+  describe('syncAllLocations', () => {
+    const mockFtLocations = Array(3)
+      .fill(null)
+      .map<FtLocation>(() => ({
+        id: faker.datatype.number({ min: 100000, max: 999999 }),
+        begin_at: faker.date.recent().toString(),
+        end_at: null,
+        host: faker.random.alphaNumeric(6),
+        user: { login: faker.internet.userName() },
+      }));
+
+    beforeEach(() => {
+      ftService.getAllActiveLocations.mockResolvedValue(mockFtLocations);
+      ftService.getAllLocations.mockResolvedValue(mockFtLocations);
+      service.saveLatestLocationId = jest.fn();
+      service.updateUserLocation = jest.fn().mockResolvedValue(undefined);
+    });
+
+    describe('when no locations have ever been fetched', () => {
+      it('should fetch all active locations', async () => {
+        await service.syncAllLocations();
+        expect(ftService.getAllActiveLocations).toHaveBeenCalled();
+      });
+    });
+
+    describe('when locations have already been fetched', () => {
+      it('should fetch all locations since then', async () => {
+        service.latestLocation = mockLocation.id - 10;
+        await service.syncAllLocations();
+        expect(ftService.getAllLocations).toHaveBeenCalledWith(
+          mockLocation.id - 10
+        );
+      });
+    });
+
+    it("should save the latest location's ID", async () => {
+      await service.syncAllLocations();
+      expect(service.saveLatestLocationId).toHaveBeenCalledWith(
+        mockFtLocations[0]
+      );
+    });
+    it("should not save the latest location's ID if none is fetched", async () => {
+      ftService.getAllActiveLocations.mockResolvedValue([]);
+      await service.syncAllLocations();
+      expect(service.saveLatestLocationId).not.toHaveBeenCalled();
+    });
+    it("should update all users' location", async () => {
+      await service.syncAllLocations();
+      expect(service.updateUserLocation).toHaveBeenCalledTimes(3);
+      for (const mockFtLocation of mockFtLocations) {
+        expect(service.updateUserLocation).toHaveBeenCalledWith(mockFtLocation);
+      }
     });
   });
 
