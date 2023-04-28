@@ -184,4 +184,134 @@ describe('FtService', () => {
       expect(response).toStrictEqual(mockFtLocation);
     });
   });
+
+  describe('getAllLocations', () => {
+    beforeEach(() => {
+      apiClient.requestLoopOverLinkHeader.mockResolvedValue([
+        mockFtLocation,
+        mockFtLocation,
+      ]);
+    });
+
+    it('should fetch all active locations', async () => {
+      await service.getAllLocations();
+      expect(apiClient.requestLoopOverLinkHeader).toHaveBeenCalledWith(
+        '/locations?sort=-id&per_page=100',
+        { authenticated: true },
+        expect.anything()
+      );
+    });
+    it('should return all active locations', async () => {
+      const response = await service.getAllLocations();
+      expect(response).toStrictEqual([mockFtLocation, mockFtLocation]);
+    });
+
+    describe('the loop condition', () => {
+      it('should return true if the ID is not specified', async () => {
+        await service.getAllLocations();
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(true);
+      });
+      it('should return true if the last location ID is greater', async () => {
+        await service.getAllLocations(mockFtLocation.id - 15);
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(true);
+      });
+      it('should return false if the last location ID is lower', async () => {
+        await service.getAllLocations(mockFtLocation.id + 15);
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(false);
+      });
+      it('should return false if the last location ID is equal', async () => {
+        await service.getAllLocations(mockFtLocation.id);
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(false);
+      });
+    });
+  });
+
+  describe('getAllActiveLocations', () => {
+    beforeEach(() => {
+      apiClient.requestLoopOverLinkHeader.mockResolvedValue([
+        mockFtLocation,
+        mockFtLocation,
+      ]);
+    });
+
+    it('should fetch all active locations', async () => {
+      await service.getAllActiveLocations();
+      expect(apiClient.requestLoopOverLinkHeader).toHaveBeenCalledWith(
+        '/locations?sort=-id&filter[active]=true&per_page=100',
+        { authenticated: true },
+        expect.anything()
+      );
+    });
+    it('should return all active locations', async () => {
+      const response = await service.getAllActiveLocations();
+      expect(response).toStrictEqual([mockFtLocation, mockFtLocation]);
+    });
+
+    describe('the loop condition', () => {
+      it('should return true if the ID is not specified', async () => {
+        await service.getAllActiveLocations();
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(true);
+      });
+      it('should return true if the last location ID is greater', async () => {
+        await service.getAllActiveLocations(mockFtLocation.id - 15);
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(true);
+      });
+      it('should return false if the last location ID is lower', async () => {
+        await service.getAllActiveLocations(mockFtLocation.id + 15);
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(false);
+      });
+      it('should return false if the last location ID is equal', async () => {
+        await service.getAllActiveLocations(mockFtLocation.id);
+        let result;
+        if (apiClient.requestLoopOverLinkHeader.mock.calls[0][2]) {
+          result = apiClient.requestLoopOverLinkHeader.mock.calls[0][2]([
+            mockFtLocation,
+          ]);
+        }
+        expect(result).toBe(false);
+      });
+    });
+  });
 });

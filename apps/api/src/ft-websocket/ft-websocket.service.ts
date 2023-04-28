@@ -49,9 +49,10 @@ export class FtWebsocketService {
   }
 
   onOpen() {
-    return () => {
+    return async () => {
       this.logger.log('Websocket to 42 is opened');
       this.sendSubscription();
+      await this.syncAllLocations();
     };
   }
 
@@ -161,6 +162,26 @@ export class FtWebsocketService {
         })
       );
     });
+  }
+
+  async syncAllLocations() {
+    this.logger.verbose('syncing all locations...');
+    let locations: FtLocation[];
+    if (this.latestLocation === null) {
+      locations = await this.ftService.getAllActiveLocations();
+    } else {
+      locations = await this.ftService.getAllLocations(this.latestLocation);
+    }
+    const latestLocation = locations[0];
+    if (latestLocation) {
+      this.saveLatestLocationId(latestLocation);
+    }
+    await Promise.all(
+      locations.map(async (location) => {
+        this.logger.verbose(`updating ${location.user.login}`);
+        await this.updateUserLocation(location);
+      })
+    );
   }
 
   saveLatestLocationId(
