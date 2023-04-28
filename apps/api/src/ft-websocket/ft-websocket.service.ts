@@ -166,7 +166,7 @@ export class FtWebsocketService {
   saveLatestLocationId(
     location: LocationMessage['message']['location'] | FtLocation
   ) {
-    if (!location.end_at) this.latestLocation = location.id;
+    this.latestLocation = location.id;
   }
 
   async updateUserLocation(
