@@ -43,6 +43,9 @@ const mockMessage: LocationMessage = {
 };
 const mockLatestLocation: FtLocation = {
   ...mockLocation,
+  user: {
+    login: mockLocation.login,
+  },
 };
 
 describe('FtWebsocketService', () => {
