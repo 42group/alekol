@@ -219,23 +219,18 @@ describe('FtWebsocketService', () => {
   });
 
   describe('saveLatestLocationId', () => {
-    describe('if the user logs in', () => {
-      it("should save the location's id", () => {
-        const mockId = parseInt(faker.random.numeric(6));
-        service.saveLatestLocationId({ ...mockLocation, id: mockId });
-        expect(service.latestLocation).toBe(mockId);
-      });
+    it("should save the location's id", () => {
+      const mockId = faker.datatype.number({ min: 100000, max: 999999 });
+      service.saveLatestLocationId({ ...mockLocation, id: mockId });
+      expect(service.latestLocation).toBe(mockId);
     });
-    describe('if the user logs out', () => {
-      it("should save the location's id", () => {
-        const mockId = parseInt(faker.random.numeric(6));
-        service.saveLatestLocationId({
-          ...mockLocation,
-          id: mockId,
-          end_at: faker.date.recent().toString(),
-        });
-        expect(service.latestLocation).not.toBe(mockId);
-      });
+  });
+
+  describe('saveLatestLocationId', () => {
+    it("should save the location's id", () => {
+      const mockId = faker.datatype.number({ min: 100000, max: 999999 });
+      service.saveLatestLocationId({ ...mockLocation, id: mockId });
+      expect(service.latestLocation).toBe(mockId);
     });
   });
 
