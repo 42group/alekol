@@ -8,49 +8,32 @@ import { HttpService } from '@nestjs/axios';
 import { Injectable, InternalServerErrorException } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
 import { catchError, firstValueFrom } from 'rxjs';
-import { AccessToken, ClientCredentials } from 'simple-oauth2';
+import { ApiClient } from '@alekol/shared/utils';
 
 @Injectable()
 export class FtService {
+  public apiClient;
   private ftApiBaseUrl: string;
-  public client: ClientCredentials;
-  public accessToken!: AccessToken;
 
   constructor(
     private configService: ConfigService,
     private httpService: HttpService
   ) {
+    this.apiClient = new ApiClient(this.httpService, {
+      baseUrl: `${this.configService.get(`${LinkableService.Ft}.api.baseUrl`)}`,
+      clientId: this.configService.getOrThrow(
+        `${LinkableService.Ft}.api.clientId`
+      ),
+      clientSecret: this.configService.getOrThrow(
+        `${LinkableService.Ft}.api.clientSecret`
+      ),
+      maxRequestsPerInterval: 2,
+      rateLimitInterval: 1,
+      scope: 'public',
+    });
     this.ftApiBaseUrl = `${this.configService.get(
       `${LinkableService.Ft}.api.baseUrl`
     )}`;
-    this.client = new ClientCredentials({
-      client: {
-        id: configService.getOrThrow(`${LinkableService.Ft}.api.clientId`),
-        secret: configService.getOrThrow(
-          `${LinkableService.Ft}.api.clientSecret`
-        ),
-      },
-      auth: {
-        tokenHost: configService.getOrThrow(
-          `${LinkableService.Ft}.api.baseUrl`
-        ),
-      },
-    });
-  }
-
-  async populateAccessToken() {
-    if (this.accessToken) {
-      if (this.accessToken.expired()) {
-        this.accessToken = await this.accessToken.refresh({ scope: 'public' });
-      }
-    } else {
-      this.accessToken = await this.client.getToken({ scope: 'public' });
-    }
-  }
-
-  async getAccessToken() {
-    await this.populateAccessToken();
-    return this.accessToken.token.access_token;
   }
 
   async exchangeCode(
@@ -107,22 +90,9 @@ export class FtService {
   }
 
   async getLatestLocation() {
-    const accessToken = await this.getAccessToken();
-    const { data } = await firstValueFrom(
-      this.httpService
-        .get<FtLocation[]>(
-          `${this.ftApiBaseUrl}/locations?sort=-id&filter[active]=true&per_page=1`,
-          {
-            headers: {
-              Authorization: `Bearer ${accessToken}`,
-            },
-          }
-        )
-        .pipe(
-          catchError((error) => {
-            throw new InternalServerErrorException(error.message);
-          })
-        )
+    const data = await this.apiClient.request<FtLocation[]>(
+      '/locations?sort=-id&per_page=1',
+      { authenticated: true }
     );
     return data[0];
   }
