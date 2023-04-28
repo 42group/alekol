@@ -1,5 +1,5 @@
 import { LinkableService } from '@alekol/shared/enums';
-import { LocationMessage } from '@alekol/shared/interfaces';
+import { FtLocation, LocationMessage } from '@alekol/shared/interfaces';
 import { CACHE_MANAGER } from '@nestjs/cache-manager';
 import { Inject, Injectable, Logger } from '@nestjs/common';
 import { ConfigService } from '@nestjs/config';
@@ -134,6 +134,19 @@ export class FtWebsocketService {
     );
   }
 
+  getLoginFromLocation(
+    location: LocationMessage['message']['location'] | FtLocation
+  ) {
+    if ('login' in location) return location.login;
+    else if (
+      'user' in location &&
+      typeof location.user === 'object' &&
+      location.user !== null &&
+      'login' in location.user
+    )
+      return location.user.login;
+  }
+
   sendSubscription() {
     ['Location', 'Notification', 'Flash'].forEach((channelName) => {
       this.ws.send(
@@ -150,16 +163,17 @@ export class FtWebsocketService {
     });
   }
 
-  saveLatestLocationId(location: LocationMessage['message']['location']) {
+  saveLatestLocationId(
+    location: LocationMessage['message']['location'] | FtLocation
+  ) {
     if (!location.end_at) this.latestLocation = location.id;
   }
 
-  async updateUserLocation({
-    begin_at,
-    end_at,
-    host,
-    login,
-  }: LocationMessage['message']['location']) {
+  async updateUserLocation(
+    location: LocationMessage['message']['location'] | FtLocation
+  ) {
+    const { begin_at, end_at, host } = location;
+    const login = this.getLoginFromLocation(location);
     await this.cacheManager.store.set(`user:${login}`, {
       begin_at,
       end_at,

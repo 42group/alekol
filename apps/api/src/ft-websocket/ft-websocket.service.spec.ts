@@ -182,6 +182,22 @@ describe('FtWebsocketService', () => {
     });
   });
 
+  describe('getLoginFromLocation', () => {
+    describe('sending a LocationMessage', () => {
+      it('should return the login', () => {
+        const result = service.getLoginFromLocation(mockLocation);
+        expect(result).toBe(mockLocation.login);
+      });
+    });
+
+    describe('sending an FtLocation', () => {
+      it('should return the login', () => {
+        const result = service.getLoginFromLocation(mockLatestLocation);
+        expect(result).toBe(mockLatestLocation.user.login);
+      });
+    });
+  });
+
   describe('sendSubscription', () => {
     it.each(['Location', 'Notification', 'Flash'])(
       'should send %s channel subscription',
@@ -224,6 +240,17 @@ describe('FtWebsocketService', () => {
   });
 
   describe('updateUserLocation', () => {
+    beforeEach(() => {
+      service.getLoginFromLocation = jest
+        .fn()
+        .mockReturnValue(mockLocation.login);
+    });
+
+    it('should extract the login from the object', async () => {
+      await service.updateUserLocation(mockLocation);
+      expect(service.getLoginFromLocation).toHaveBeenCalledWith(mockLocation);
+    });
+
     it('should save the user inside the cache', async () => {
       await service.updateUserLocation(mockLocation);
       expect(cacheManager.store.set).toHaveBeenCalledWith(
