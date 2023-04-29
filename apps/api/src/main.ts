@@ -10,6 +10,8 @@ import { ironSession } from 'iron-session/express';
 import { AppModule } from './app/app.module';
 import { ConfigService } from '@nestjs/config';
 
+import 'parse-link-header';
+
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
   const globalPrefix = 'api';
