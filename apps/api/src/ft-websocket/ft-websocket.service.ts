@@ -35,7 +35,7 @@ export class FtWebsocketService {
 
   @Interval(60 * 1000)
   async checkHealth() {
-    const latestLocation = await this.ftService.getLatestLocation();
+    const latestLocation = await this.ftService.getLatestActiveLocation();
     if (
       this.latestLocation !== null &&
       latestLocation.id > this.latestLocation + 20
@@ -187,7 +187,7 @@ export class FtWebsocketService {
   saveLatestLocationId(
     location: LocationMessage['message']['location'] | FtLocation
   ) {
-    this.latestLocation = location.id;
+    if (!location.end_at) this.latestLocation = location.id;
   }
 
   async updateUserLocation(

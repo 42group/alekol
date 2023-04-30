@@ -89,9 +89,9 @@ export class FtService {
     return data;
   }
 
-  async getLatestLocation() {
+  async getLatestActiveLocation() {
     const data = await this.apiClient.request<FtLocation[]>(
-      '/locations?sort=-id&per_page=1',
+      '/locations?sort=-id&filter[active]=true&per_page=1',
       { authenticated: true }
     );
     return data[0];

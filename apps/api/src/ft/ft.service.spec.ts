@@ -167,20 +167,20 @@ describe('FtService', () => {
     });
   });
 
-  describe('getLatestLocation', () => {
+  describe('getLatestActiveLocation', () => {
     beforeEach(() => {
       apiClient.request.mockResolvedValue([mockFtLocation, mockFtLocation]);
     });
 
     it('should fetch the locations', async () => {
-      await service.getLatestLocation();
+      await service.getLatestActiveLocation();
       expect(apiClient.request).toHaveBeenCalledWith(
-        '/locations?sort=-id&per_page=1',
+        '/locations?sort=-id&filter[active]=true&per_page=1',
         { authenticated: true }
       );
     });
     it('should return the first location', async () => {
-      const response = await service.getLatestLocation();
+      const response = await service.getLatestActiveLocation();
       expect(response).toStrictEqual(mockFtLocation);
     });
   });
