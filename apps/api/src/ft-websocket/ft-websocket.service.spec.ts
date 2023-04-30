@@ -91,18 +91,18 @@ describe('FtWebsocketService', () => {
 
   describe('checkHealth', () => {
     beforeEach(() => {
-      ftService.getLatestLocation.mockResolvedValue(mockLatestLocation);
+      ftService.getLatestActiveLocation.mockResolvedValue(mockLatestLocation);
       service.latestLocation = mockLatestLocation.id;
     });
 
     it('should fetch the latest location', async () => {
       await service.checkHealth();
-      expect(ftService.getLatestLocation).toHaveBeenCalled();
+      expect(ftService.getLatestActiveLocation).toHaveBeenCalled();
     });
 
     describe('if the websocket seems ok', () => {
       beforeEach(() => {
-        ftService.getLatestLocation.mockResolvedValue(mockLatestLocation);
+        ftService.getLatestActiveLocation.mockResolvedValue(mockLatestLocation);
       });
 
       it('should not close the websocket', async () => {
@@ -112,7 +112,7 @@ describe('FtWebsocketService', () => {
     });
     describe('if the websocket seems broken', () => {
       beforeEach(() => {
-        ftService.getLatestLocation.mockResolvedValue(mockLatestLocation);
+        ftService.getLatestActiveLocation.mockResolvedValue(mockLatestLocation);
         service.latestLocation = mockLatestLocation.id - 30;
       });
 
@@ -224,10 +224,25 @@ describe('FtWebsocketService', () => {
   });
 
   describe('saveLatestLocationId', () => {
-    it("should save the location's id", () => {
-      const mockId = faker.datatype.number({ min: 100000, max: 999999 });
-      service.saveLatestLocationId({ ...mockLocation, id: mockId });
-      expect(service.latestLocation).toBe(mockId);
+    describe('if the user is logging in', () => {
+      it("should save the location's id", () => {
+        const mockId = faker.datatype.number({ min: 100000, max: 999999 });
+        service.saveLatestLocationId({ ...mockLocation, id: mockId });
+        expect(service.latestLocation).toBe(mockId);
+      });
+    });
+
+    describe('if the user is logging out', () => {
+      it("should not save the location's id", () => {
+        const mockId = faker.datatype.number({ min: 100000, max: 999999 });
+        service.latestLocation = mockId - 10;
+        service.saveLatestLocationId({
+          ...mockLocation,
+          id: mockId,
+          end_at: faker.date.recent().toString(),
+        });
+        expect(service.latestLocation).toBe(mockId - 10);
+      });
     });
   });
 
