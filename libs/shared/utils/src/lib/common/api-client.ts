@@ -60,15 +60,8 @@ export class ApiClient {
   }
 
   async populateAccessToken() {
-    if (this.accessToken) {
-      if (this.accessToken.expired()) {
-        this.accessToken = await this.accessToken.refresh({
-          scope: this.scope,
-        });
-      }
-    } else {
-      this.accessToken = await this.client.getToken({ scope: this.scope });
-    }
+    if (this.accessToken && !this.accessToken.expired()) return;
+    this.accessToken = await this.client.getToken({ scope: this.scope });
   }
 
   async getAccessToken() {
