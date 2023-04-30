@@ -96,11 +96,9 @@ describe('ApiClient', () => {
         await apiClient.populateAccessToken();
         expect(mockAccessToken.expired).toHaveBeenCalled();
       });
-      it('should refresh the token', async () => {
+      it('should get the token', async () => {
         await apiClient.populateAccessToken();
-        expect(mockAccessToken.refresh).toHaveBeenCalledWith({
-          scope: 'public',
-        });
+        expect(oauth2Client.getToken).toHaveBeenCalledWith({ scope: 'public' });
       });
     });
 
@@ -112,10 +110,6 @@ describe('ApiClient', () => {
       it('should the expiracy of the token', async () => {
         await apiClient.populateAccessToken();
         expect(mockAccessToken.expired).toHaveBeenCalledWith();
-      });
-      it('should not refresh the token', async () => {
-        await apiClient.populateAccessToken();
-        expect(mockAccessToken.refresh).not.toHaveBeenCalled();
       });
       it('should not get a new token', async () => {
         await apiClient.populateAccessToken();
