@@ -11,6 +11,8 @@ import { AppModule } from './app/app.module';
 import { ConfigService } from '@nestjs/config';
 
 import 'parse-link-header';
+import { SessionWsAdapter } from './session-ws-adapter';
+import { PrismaService } from './prisma.service';
 
 async function bootstrap() {
   const app = await NestFactory.create(AppModule);
@@ -18,6 +20,10 @@ async function bootstrap() {
   app.setGlobalPrefix(globalPrefix);
   const port = process.env.PORT || 3000;
   const configService = app.get(ConfigService);
+  const prismaService = app.get(PrismaService);
+  app.useWebSocketAdapter(
+    new SessionWsAdapter(configService, prismaService, app)
+  );
 
   app.use(
     ironSession({

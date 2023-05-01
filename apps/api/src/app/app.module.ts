@@ -10,6 +10,7 @@ import { CacheModule } from '@nestjs/cache-manager';
 import { redisStore } from 'cache-manager-redis-yet';
 import type { RedisClientOptions } from 'redis';
 import { ScheduleModule } from '@nestjs/schedule';
+import { WebsocketGateway } from '../websocket.gateway';
 
 @Module({
   imports: [
@@ -34,6 +35,6 @@ import { ScheduleModule } from '@nestjs/schedule';
     ScheduleModule.forRoot(),
   ],
   controllers: [AppController],
-  providers: [AppService],
+  providers: [AppService, WebsocketGateway],
 })
 export class AppModule {}
