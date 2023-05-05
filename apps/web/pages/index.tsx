@@ -12,7 +12,7 @@ import config from '../lib/config';
 import { LinkableService } from '@alekol/shared/enums';
 
 export const getServerSideProps = withIronSessionSsr(
-  ironSessionWrapper(),
+  ironSessionWrapper(config.baseUrl),
   config.ironSession
 );
 

@@ -5,7 +5,7 @@ import { withIronSessionSsr } from 'iron-session/next';
 import config from '../../lib/config';
 
 export const getServerSideProps = withIronSessionSsr(
-  ironSessionWrapper([(_, { user }) => !!user.id]),
+  ironSessionWrapper(config.baseUrl, [(_, { user }) => !!user.id]),
   config.ironSession
 );
 

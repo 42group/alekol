@@ -8,6 +8,7 @@ import { LinkableService } from '@alekol/shared/enums';
 
 export const getServerSideProps = withIronSessionSsr(
   ironSessionWrapper(
+    config.baseUrl,
     [({ query }) => !!query.code, (_, { user }) => !user.accountLinking.ft],
     '/auth'
   ),

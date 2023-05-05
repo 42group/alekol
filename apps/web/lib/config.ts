@@ -8,6 +8,7 @@ if (!process.env.NEXT_PUBLIC_BASE_URL)
   console.warn("'NEXT_PUBLIC_BASE_URL' environment variable must be defined");
 
 const config = {
+  baseUrl: process.env.NEXT_PUBLIC_BASE_URL,
   discord: {
     clientId: process.env.NEXT_PUBLIC_DISCORD_CLIENT_ID,
     redirectUri: `${process.env.NEXT_PUBLIC_BASE_URL}/auth/oauth2/${LinkableService.Discord}/callback`,
