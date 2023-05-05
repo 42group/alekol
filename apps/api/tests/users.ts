@@ -4,6 +4,7 @@ import {
   AccountLinkingData,
   DiscordUser,
   FtUser,
+  User,
 } from '@alekol/shared/interfaces';
 import { generateDiscordUserAvatarUrl } from '@alekol/shared/utils';
 
@@ -36,4 +37,11 @@ export const mockUser: UserModel = {
   id: faker.datatype.uuid(),
   discordId: mockLinkedDiscord.id,
   ftLogin: mockLinkedFt.name,
+};
+
+export const mockSessionUser: User = {
+  accountLinking: {
+    discord: mockLinkedDiscord,
+    ft: mockLinkedFt,
+  },
 };

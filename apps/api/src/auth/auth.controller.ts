@@ -1,15 +1,20 @@
 import {
   Body,
   Controller,
+  Get,
   HttpCode,
   HttpStatus,
   Post,
   Session,
+  UseGuards,
 } from '@nestjs/common';
 import { DiscordCodeExchangeDto, FtCodeExchangeDto } from '@alekol/shared/dtos';
 import { AuthenticationStatus, LinkableService } from '@alekol/shared/enums';
 import { IronSession } from 'iron-session';
 import { AuthService } from './auth.service';
+import { User as IUser } from '@alekol/shared/interfaces';
+import { SessionAuthGuard } from '../common/guards/session-auth.guard';
+import { SessionUser } from '../common/decorators/session-user.decorator';
 
 @Controller('auth')
 export class AuthController {
@@ -81,6 +86,16 @@ export class AuthController {
   @Post(`oauth2/${LinkableService.Ft}/unlink`)
   async unlinkFt(@Session() session: IronSession) {
     await this.authService.unlinkFt(session);
+  }
+
+  @Get('check-services')
+  @UseGuards(SessionAuthGuard)
+  async checkServices(@SessionUser() user: IUser) {
+    const duplicates = await this.authService.getDuplicateAccounts(user);
+
+    return {
+      duplicates,
+    };
   }
 
   @Post('create-account')
