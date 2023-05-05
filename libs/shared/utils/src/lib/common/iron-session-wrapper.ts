@@ -17,11 +17,16 @@ export function ironSessionWrapper(
       accountLinking: {},
     };
 
-    if (
-      !tests.every((test) => {
-        return test(context, { user });
-      })
-    ) {
+    try {
+      // Execute the tests passed in arguments.
+      if (
+        !tests.every((test) => {
+          return test(context, { user });
+        })
+      ) {
+        throw 'One or more tests have failed';
+      }
+    } catch (error) {
       return {
         redirect: {
           destination: redirectRoute,
