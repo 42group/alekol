@@ -1,0 +1,31 @@
+@import '../styles/variables.scss';
+
+.container {
+  border-radius: 8px;
+  border-style: solid;
+  border-width: 2px;
+  width: 100%;
+  padding: 12px 16px;
+
+  display: flex;
+  gap: 8px;
+  flex-direction: column;
+
+  &.info {
+    border-color: $dark-primary-blue;
+
+    background-color: $dark-primary-blue-20;
+  }
+
+  &.warn {
+    border-color: $dark-system-yellow;
+
+    background-color: $dark-system-yellow-20;
+  }
+
+  &.error {
+    border-color: $dark-system-danger;
+
+    background-color: $dark-system-danger-20;
+  }
+}
