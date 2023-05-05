@@ -4,6 +4,7 @@ import { User } from '@alekol/shared/interfaces';
 import { AuthForm, ContinueAccountCreationHeader } from '@alekol/shared/ui';
 import { ironSessionWrapper } from '@alekol/shared/utils';
 import config from '../../lib/config';
+import styles from './index.module.scss';
 import { useState } from 'react';
 
 export const getServerSideProps = withIronSessionSsr(
@@ -47,21 +48,23 @@ export function Auth({ user }: AuthProps) {
             }}
           />
         )}
-      <AuthForm
-        disabled={loading}
-        servicesConfig={servicesConfig}
-        unlinkService={(service: LinkableService) => {
-          setSessionUser((oldUser) => {
-            const newUser = JSON.parse(JSON.stringify(oldUser));
-            delete newUser.accountLinking[service];
-            return newUser;
-          });
-          return () => {
-            setSessionUser(sessionUser);
-            return sessionUser;
-          };
-        }}
-      />
+      <div className={styles.content}>
+        <AuthForm
+          disabled={loading}
+          servicesConfig={servicesConfig}
+          unlinkService={(service: LinkableService) => {
+            setSessionUser((oldUser) => {
+              const newUser = JSON.parse(JSON.stringify(oldUser));
+              delete newUser.accountLinking[service];
+              return newUser;
+            });
+            return () => {
+              setSessionUser(sessionUser);
+              return sessionUser;
+            };
+          }}
+        />
+      </div>
     </div>
   );
 }
