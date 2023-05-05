@@ -157,4 +157,22 @@ export class AuthService {
     };
     await session.save();
   }
+
+  async getDuplicateAccounts(user: User) {
+    const duplicates = [];
+
+    if (user) {
+      for (const service of Object.values(LinkableService)) {
+        const accountLinking = user.accountLinking[service];
+        if (
+          accountLinking &&
+          (await this.serviceIsAlreadyRegistered(service, accountLinking))
+        ) {
+          duplicates.push(service);
+        }
+      }
+    }
+
+    return duplicates;
+  }
 }

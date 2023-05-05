@@ -12,6 +12,7 @@ import {
   mockFtUser,
   mockLinkedDiscord,
   mockLinkedFt,
+  mockSessionUser,
   mockUser,
 } from '../../tests/users';
 
@@ -200,6 +201,31 @@ describe('AuthController', () => {
     it('should remove the ft user from the session', async () => {
       await controller.unlinkFt(session);
       expect(service.unlinkFt).toHaveBeenCalledWith(session);
+    });
+  });
+
+  describe('checkServices', () => {
+    beforeEach(() => {
+      service.getDuplicateAccounts.mockResolvedValue([]);
+    });
+
+    it('should get an array of duplicate accounts', async () => {
+      await controller.checkServices(mockSessionUser);
+      expect(service.getDuplicateAccounts).toHaveBeenCalledWith(
+        mockSessionUser
+      );
+    });
+    it.each<{ duplicates: LinkableService[] }>([
+      { duplicates: [] },
+      { duplicates: [LinkableService.Ft] },
+      { duplicates: [LinkableService.Discord] },
+      { duplicates: [LinkableService.Discord, LinkableService.Ft] },
+    ])('should return the duplicate accounts', async ({ duplicates }) => {
+      service.getDuplicateAccounts.mockResolvedValue(duplicates);
+      const result = await controller.checkServices(mockSessionUser);
+      expect(result).toStrictEqual({
+        duplicates,
+      });
     });
   });
 

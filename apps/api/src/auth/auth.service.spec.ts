@@ -13,6 +13,7 @@ import {
   mockFtUser,
   mockLinkedDiscord,
   mockLinkedFt,
+  mockSessionUser,
   mockUser,
 } from '../../tests/users';
 import { FtService } from '../ft/ft.service';
@@ -493,6 +494,26 @@ describe('AuthService', () => {
     it('should save the session', async () => {
       await service.login(mockSession, mockUser);
       expect(mockSession.save).toHaveBeenCalled();
+    });
+  });
+
+  describe('getDuplicateAccounts', () => {
+    beforeEach(() => {
+      service.serviceIsAlreadyRegistered = jest.fn().mockResolvedValue(true);
+    });
+
+    it('should check if the service is already registered', async () => {
+      await service.getDuplicateAccounts(mockSessionUser);
+      for (const linkableService of Object.values(LinkableService)) {
+        expect(service.serviceIsAlreadyRegistered).toHaveBeenCalledWith(
+          linkableService,
+          mockSessionUser.accountLinking[linkableService]
+        );
+      }
+    });
+    it('should return every duplicate service', async () => {
+      const result = await service.getDuplicateAccounts(mockSessionUser);
+      expect(result).toStrictEqual(Object.values(LinkableService));
     });
   });
 });
