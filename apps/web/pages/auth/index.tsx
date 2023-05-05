@@ -7,7 +7,7 @@ import config from '../../lib/config';
 import { useState } from 'react';
 
 export const getServerSideProps = withIronSessionSsr(
-  ironSessionWrapper(),
+  ironSessionWrapper(config.baseUrl),
   config.ironSession
 );
 

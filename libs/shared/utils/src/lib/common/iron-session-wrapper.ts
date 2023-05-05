@@ -1,8 +1,12 @@
 import { ParsedUrlQuery } from 'querystring';
 import { GetServerSidePropsContext, PreviewData } from 'next';
 import { User } from '@alekol/shared/interfaces';
+import { LinkableService } from '@alekol/shared/enums';
+import { getDuplicateAccounts } from './get-duplicate-accounts';
+import { userIsCreatingAccount } from './user-is-creating-account';
 
 export function ironSessionWrapper(
+  baseUrl: string,
   tests: ((
     context: GetServerSidePropsContext<ParsedUrlQuery, PreviewData>,
     data: { user: User }
@@ -17,6 +21,7 @@ export function ironSessionWrapper(
       accountLinking: {},
     };
 
+    let duplicates: LinkableService[] | null = [];
     try {
       // Execute the tests passed in arguments.
       if (
@@ -25,6 +30,19 @@ export function ironSessionWrapper(
         })
       ) {
         throw 'One or more tests have failed';
+      }
+
+      // Check account duplicates.
+      // Only if the user is creating an account,
+      // to avoid unnecessary checks.
+      if (userIsCreatingAccount(user)) {
+        duplicates = await getDuplicateAccounts(
+          baseUrl,
+          `${req.headers.cookie}`
+        );
+        if (duplicates === null) {
+          throw 'The request to get duplicate accounts has failed';
+        }
       }
     } catch (error) {
       return {
@@ -35,6 +53,17 @@ export function ironSessionWrapper(
       };
     }
 
-    return { props: { user } };
+    for (const service of duplicates) {
+      delete user.accountLinking[service];
+    }
+
+    await req.session.save();
+
+    return {
+      props: {
+        duplicates,
+        user,
+      },
+    };
   };
 }
