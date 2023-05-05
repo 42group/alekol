@@ -1,7 +1,11 @@
 import { withIronSessionSsr } from 'iron-session/next';
 import { LinkableService } from '@alekol/shared/enums';
 import { User } from '@alekol/shared/interfaces';
-import { AuthForm, ContinueAccountCreationHeader } from '@alekol/shared/ui';
+import {
+  AuthForm,
+  ContinueAccountCreationHeader,
+  InfoBanner,
+} from '@alekol/shared/ui';
 import { ironSessionWrapper } from '@alekol/shared/utils';
 import config from '../../lib/config';
 import styles from './index.module.scss';
@@ -13,10 +17,11 @@ export const getServerSideProps = withIronSessionSsr(
 );
 
 export interface AuthProps {
+  duplicates?: LinkableService[];
   user?: User;
 }
 
-export function Auth({ user }: AuthProps) {
+export function Auth({ duplicates = [], user }: AuthProps) {
   const [loading, setLoading] = useState(false);
   const [sessionUser, setSessionUser] = useState(user);
 
@@ -49,6 +54,11 @@ export function Auth({ user }: AuthProps) {
           />
         )}
       <div className={styles.content}>
+        {duplicates.length > 0 ? (
+          <InfoBanner title="Services duplicates" color="warn">
+            Some of your services were already linked. They were unlinked.
+          </InfoBanner>
+        ) : null}
         <AuthForm
           disabled={loading}
           servicesConfig={servicesConfig}
