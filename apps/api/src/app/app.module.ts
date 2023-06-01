@@ -11,6 +11,8 @@ import { redisStore } from 'cache-manager-redis-yet';
 import type { RedisClientOptions } from 'redis';
 import { ScheduleModule } from '@nestjs/schedule';
 import { WebsocketGateway } from '../websocket.gateway';
+import { DiscordModule } from '@discord-nestjs/core';
+import { GatewayIntentBits } from 'discord.js';
 
 @Module({
   imports: [
@@ -29,6 +31,16 @@ import { WebsocketGateway } from '../websocket.gateway';
     }),
     ConfigModule.forRoot({
       load: [config],
+    }),
+    DiscordModule.forRootAsync({
+      imports: [ConfigModule],
+      useFactory: (configService: ConfigService) => ({
+        token: configService.getOrThrow<string>('discord.token'),
+        discordClientOptions: {
+          intents: [GatewayIntentBits.Guilds],
+        },
+      }),
+      inject: [ConfigService],
     }),
     AuthModule,
     FtWebsocketModule,
