@@ -12,6 +12,7 @@ export default () => ({
       clientSecret: process.env.DISCORD_API_CLIENT_SECRET,
       redirectUri: `${process.env.FRONTEND_BASE_URL}/auth/oauth2/${LinkableService.Discord}/callback`,
     },
+    token: `${process.env.DISCORD_BOT_TOKEN}`,
   },
   [LinkableService.Ft]: {
     api: {
