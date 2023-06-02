@@ -38,6 +38,7 @@ import { GatewayIntentBits } from 'discord.js';
         token: configService.getOrThrow<string>('discord.token'),
         discordClientOptions: {
           intents: [GatewayIntentBits.Guilds],
+          shards: 'auto',
         },
       }),
       inject: [ConfigService],
