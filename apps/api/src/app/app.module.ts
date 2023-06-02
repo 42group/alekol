@@ -13,6 +13,7 @@ import { ScheduleModule } from '@nestjs/schedule';
 import { WebsocketGateway } from '../websocket.gateway';
 import { DiscordModule } from '@discord-nestjs/core';
 import { GatewayIntentBits } from 'discord.js';
+import { BotModule } from '../bot/bot.module';
 
 @Module({
   imports: [
@@ -44,6 +45,7 @@ import { GatewayIntentBits } from 'discord.js';
       inject: [ConfigService],
     }),
     AuthModule,
+    BotModule,
     FtWebsocketModule,
     ScheduleModule.forRoot(),
   ],
