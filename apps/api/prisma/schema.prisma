@@ -7,8 +7,23 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+model Guild {
+  id    String  @id @default(uuid())
+  users UsersInGuilds[]
+}
+
 model User {
   id        String  @id @default(uuid())
   ftLogin   String? @unique @db.VarChar(255)
   discordId String? @unique @db.VarChar(255)
+  guilds    UsersInGuilds[]
+}
+
+model UsersInGuilds {
+  user    User    @relation(fields: [userId], references: [id])
+  userId  String
+  guild   Guild   @relation(fields: [guildId], references: [id])
+  guildId String
+
+  @@id([userId, guildId])
 }
