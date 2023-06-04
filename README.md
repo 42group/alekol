@@ -23,6 +23,7 @@ FRONTEND_BASE_URL= # The URL from which the frontend will be accessed (e.g. http
 # Discord
 DISCORD_API_CLIENT_ID= # Your Discord client Id
 DISCORD_API_CLIENT_SECRET= # Your Discord client secret
+DISCORD_BOT_TOKEN= # Your Discord bot's token
 
 # 42
 FT_API_CLIENT_ID= # Your 42 client ID
