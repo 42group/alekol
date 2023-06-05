@@ -3,7 +3,7 @@
   "npmScope": "alekol",
   "tasksRunnerOptions": {
     "default": {
-      "runner": "nx-cloud",
+      "runner": "@nrwl/nx-cloud",
       "options": {
         "cacheableOperations": ["build", "lint", "test", "e2e"],
         "accessToken": "NGJiYzcwYmItZGZhYi00NzUxLTg2ZjktYzQzNzQ3ZmU0NTdkfHJlYWQtd3JpdGU="
@@ -29,18 +29,18 @@
     }
   },
   "generators": {
-    "@nx/next": {
-      "application": {
-        "style": "scss",
-        "linter": "eslint"
-      }
-    },
-    "@nx/react": {
+    "@nrwl/react": {
       "application": {
         "babel": true
       },
       "library": {
         "unitTestRunner": "jest"
+      }
+    },
+    "@nrwl/next": {
+      "application": {
+        "style": "scss",
+        "linter": "eslint"
       }
     }
   },

@@ -5,10 +5,11 @@
   "projectType": "application",
   "targets": {
     "build": {
-      "executor": "@nx/next:build",
+      "executor": "@nrwl/next:build",
       "outputs": ["{options.outputPath}"],
       "defaultConfiguration": "production",
       "options": {
+        "root": "apps/web",
         "outputPath": "dist/apps/web",
         "assets": [
           {
@@ -26,7 +27,7 @@
       }
     },
     "serve": {
-      "executor": "@nx/next:server",
+      "executor": "@nrwl/next:server",
       "defaultConfiguration": "development",
       "options": {
         "buildTarget": "web:build",
@@ -45,13 +46,13 @@
       }
     },
     "export": {
-      "executor": "@nx/next:export",
+      "executor": "@nrwl/next:export",
       "options": {
         "buildTarget": "web:build:production"
       }
     },
     "test": {
-      "executor": "@nx/jest:jest",
+      "executor": "@nrwl/jest:jest",
       "outputs": ["{workspaceRoot}/coverage/{projectRoot}"],
       "options": {
         "jestConfig": "apps/web/jest.config.ts",
@@ -65,7 +66,7 @@
       }
     },
     "lint": {
-      "executor": "@nx/linter:eslint",
+      "executor": "@nrwl/linter:eslint",
       "outputs": ["{options.outputFile}"],
       "options": {
         "lintFilePatterns": ["apps/web/**/*.{ts,tsx,js,jsx}"]
