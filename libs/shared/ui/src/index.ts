@@ -7,5 +7,6 @@ export * from './lib/discord-oauth2-button/discord-oauth2-button';
 export * from './lib/ft-oauth2-button/ft-oauth2-button';
 export * from './lib/info-banner/info-banner';
 export * from './lib/separator/separator';
+export * from './lib/switch/switch';
 
 export * from './lib/hooks';

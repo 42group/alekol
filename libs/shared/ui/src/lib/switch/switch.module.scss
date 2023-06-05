@@ -1,0 +1,59 @@
+@import '../styles/variables.scss';
+
+.checkbox {
+  position: absolute;
+  left: -9000px;
+  top: -9000px;
+
+  opacity: 0;
+}
+
+.label {
+  position: relative;
+
+  border-radius: 24px;
+  width: 48px;
+  height: 24px;
+
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+
+  background: $dark-neutral-lightgrey;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.label .button {
+  position: absolute;
+  top: 2px;
+  left: 2px;
+
+  border-radius: 10px;
+  width: 20px;
+  height: 20px;
+
+  content: '';
+  background: $dark-background-black;
+  transition: 0.2s;
+}
+
+.checkbox:checked {
+  & + .label {
+    background: $dark-primary-purple;
+  }
+
+  & + .label .button {
+    background: $dark-neutral-white;
+  }
+}
+
+.checkbox:checked + .label .button {
+  left: calc(100% - 2px);
+
+  transform: translateX(-100%);
+}
+
+.label:active .button {
+  width: 24px;
+}
